@@ -25,23 +25,11 @@ const TCLE_SECTIONS = [
     text: 'Os dados coletados têm como finalidade: (a) monitoramento da evolução clínica do paciente ao longo das 12 semanas; (b) fornecimento de material educativo personalizado; (c) geração de relatórios para o profissional responsável; (d) manutenção de trilha de auditoria conforme exigido pelo Conselho Federal de Medicina (CFM) para prontuários eletrônicos.',
   },
   {
-    title: '4. Compartilhamento de Dados',
-    text: 'Os dados serão acessíveis exclusivamente pelo paciente e pelo profissional de saúde responsável pelo programa. Não há compartilhamento com terceiros. Os dados não serão utilizados para pesquisa sem consentimento específico adicional. O acesso é controlado por regras rigorosas de controle de acesso baseado em papéis (RBAC).',
-  },
-  {
-    title: '5. Direitos do Titular (LGPD)',
-    text: 'Conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), o titular dos dados tem direito a: (a) confirmação da existência de tratamento; (b) acesso aos dados; (c) correção de dados incompletos, inexatos ou desatualizados; (d) anonimização, bloqueio ou eliminação de dados desnecessários; (e) portabilidade dos dados; (f) eliminação dos dados tratados com consentimento; (g) revogação do consentimento.',
-  },
-  {
-    title: '6. Segurança da Informação',
+    title: '4. Segurança da Informação',
     text: 'A plataforma implementa: criptografia de dados em trânsito (HTTPS/TLS), controle de acesso baseado em papéis, trilha de auditoria de todas as ações sensíveis, timeout de sessão por inatividade (30 minutos), e complexidade de senha obrigatória. O prazo de retenção dos dados segue as normas do CFM para prontuários médicos eletrônicos.',
   },
   {
-    title: '7. Participação Voluntária',
-    text: 'A participação no programa é voluntária. O paciente pode desistir a qualquer momento, sem prejuízo a qualquer atendimento. A revogação do consentimento implica na interrupção do uso da plataforma, mas os dados já coletados podem ser mantidos conforme exigências legais do CFM para registros médicos.',
-  },
-  {
-    title: '8. Política de Privacidade',
+    title: '5. Política de Privacidade',
     text: 'A Política de Privacidade completa está disponível e descreve em detalhes como coletamos, usamos, armazenamos e protegemos seus dados pessoais. Ao aceitar este termo, você declara ter lido e compreendido todos os termos aqui descritos, estando ciente de seus direitos e deveres no âmbito do programa.',
   },
 ]
@@ -75,17 +63,17 @@ export function ConsentModal({ open, onAccept }: Props) {
   return (
     <Dialog open={open}>
       <DialogContent
-        className="max-w-2xl max-h-[92vh] flex flex-col p-0"
+        className="max-w-2xl max-h-[92vh] flex flex-col p-0 border-amber-200/60"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="px-6 pt-6 pb-2 shrink-0 border-b border-slate-100">
-          <DialogTitle className="text-xl text-slate-800 flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-primary" />
+        <DialogHeader className="px-6 pt-6 pb-2 shrink-0 border-b border-amber-100">
+          <DialogTitle className="text-xl text-amber-900 flex items-center gap-2 font-serif">
+            <ShieldCheck className="w-5 h-5 text-amber-600" />
             Termo de Consentimento Livre e Esclarecido
           </DialogTitle>
-          <DialogDescription className="text-sm text-slate-500">
+          <DialogDescription className="text-sm text-amber-700/70">
             Para continuar, leia e aceite o TCLE e a Política de Privacidade (LGPD).
           </DialogDescription>
         </DialogHeader>
@@ -96,13 +84,13 @@ export function ConsentModal({ open, onAccept }: Props) {
           className="flex-1 overflow-y-auto px-6 py-4 space-y-4"
         >
           {TCLE_SECTIONS.map((section, i) => (
-            <div key={i}>
-              <h3 className="text-sm font-bold text-slate-800 mb-1">{section.title}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{section.text}</p>
+            <div key={i} className="border-l-2 border-amber-200 pl-3">
+              <h3 className="text-sm font-semibold text-amber-900 mb-1">{section.title}</h3>
+              <p className="text-sm text-amber-800/80 leading-relaxed">{section.text}</p>
             </div>
           ))}
-          <div className="pt-4 border-t border-slate-100">
-            <p className="text-xs text-slate-400 italic">
+          <div className="pt-4 border-t border-amber-100">
+            <p className="text-xs text-amber-600/60 italic">
               Ao clicar em "Aceitar e Continuar", você concorda com todos os termos acima descritos,
               confirmando seu consentimento livre e esclarecido para o tratamento de seus dados
               pessoais no âmbito deste programa.
@@ -110,7 +98,7 @@ export function ConsentModal({ open, onAccept }: Props) {
           </div>
         </div>
 
-        <div className="shrink-0 px-6 py-4 border-t border-slate-100 bg-slate-50/50 rounded-b-lg">
+        <div className="shrink-0 px-6 py-4 border-t border-amber-100 bg-amber-50/40 rounded-b-lg">
           <div className="flex items-center gap-2 mb-3">
             {hasScrolledToBottom ? (
               <>
@@ -121,8 +109,8 @@ export function ConsentModal({ open, onAccept }: Props) {
               </>
             ) : (
               <>
-                <Circle className="w-4 h-4 text-slate-300" />
-                <span className="text-xs text-slate-400">
+                <Circle className="w-4 h-4 text-amber-300" />
+                <span className="text-xs text-amber-600/50">
                   Role até o final para habilitar o botão de aceitação.
                 </span>
               </>
@@ -131,7 +119,10 @@ export function ConsentModal({ open, onAccept }: Props) {
           <Button
             disabled={!hasScrolledToBottom || accepting}
             onClick={handleAccept}
-            className={cn('w-full', hasScrolledToBottom && 'bg-primary hover:bg-primary/90')}
+            className={cn(
+              'w-full',
+              hasScrolledToBottom && 'bg-amber-600 hover:bg-amber-700 text-white',
+            )}
             size="lg"
           >
             {accepting ? (
