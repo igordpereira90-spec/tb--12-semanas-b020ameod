@@ -22,6 +22,7 @@ import PatientDetail from './pages/professional/PatientDetail'
 import ProQuestionnaireSettings from './pages/professional/QuestionnaireSettings'
 import ProMaterials from './pages/professional/Materials'
 import AuditDashboard from './pages/professional/AuditDashboard'
+import Profile from './pages/Profile'
 
 function SessionGuard() {
   const { isAuthenticated, signOut } = useAuth()
@@ -50,6 +51,7 @@ const App = () => (
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Index />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
           </Route>
 

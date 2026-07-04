@@ -10,6 +10,7 @@ export interface AppUser {
   badges: unknown
   consent_accepted: boolean
   consent_date: string | null
+  age: number | null
   created: string
   updated: string
 }

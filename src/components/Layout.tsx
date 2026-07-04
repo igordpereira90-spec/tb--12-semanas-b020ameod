@@ -7,6 +7,7 @@ import {
   LogOut,
   Home,
   ShieldCheck,
+  UserCircle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -25,12 +26,14 @@ export default function Layout() {
     { path: '/patient', label: 'Início', icon: Home },
     { path: '/patient/library', label: 'Material', icon: BookOpen },
     { path: '/patient/questionnaires', label: 'Progresso', icon: Activity },
+    { path: '/profile', label: 'Perfil', icon: UserCircle },
   ]
   const proNav = [
     { path: '/pro', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/pro/questionnaire-settings', label: 'Questionário', icon: ClipboardList },
     { path: '/pro/materials', label: 'Material Educativo', icon: BookOpen },
     { path: '/pro/audit', label: 'Auditoria', icon: ShieldCheck },
+    { path: '/profile', label: 'Perfil', icon: UserCircle },
   ]
   const navItems = role === 'professional' ? proNav : patientNav
 
@@ -130,10 +133,17 @@ export default function Layout() {
           </div>
           <div className="flex items-center space-x-4">
             <NotificationsBell />
+            <Link
+              to="/profile"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors"
+            >
+              <UserCircle className="w-5 h-5" />
+              <span>Perfil</span>
+            </Link>
             <Avatar className="w-8 h-8 ring-2 ring-primary/20 md:hidden">
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
-          </div>
+          </div>{' '}
         </header>
 
         <div className="flex-1 p-4 md:p-8 overflow-y-auto animate-fade-in-up">

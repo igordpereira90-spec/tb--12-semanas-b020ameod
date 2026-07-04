@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T18:05:11.466Z",
+  "generatedAt": "2026-07-04T18:11:38.685Z",
   "collections": [
     {
       "name": "users",
@@ -66,6 +66,12 @@
         {
           "name": "consent_date",
           "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "age",
+          "type": "number",
           "required": false,
           "system": false
         }
