@@ -56,7 +56,8 @@ export default function ProQuestionnaireSettings() {
             Gestão de Conteúdo
           </h1>
           <p className="text-slate-600">
-            Gerencie o material educativo de cada semana do programa de 12 semanas.
+            Gerencie o material educativo e a estrutura dos questionários de cada semana do programa
+            de 12 semanas.
           </p>
         </div>
         <div className="flex items-center gap-3 bg-white rounded-xl border border-primary/20 shadow-sm px-4 py-3">
