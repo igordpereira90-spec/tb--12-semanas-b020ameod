@@ -7,6 +7,7 @@ interface CurrentTaskCardProps {
   hasQuestionnairePending: boolean
   hasMaterialToRead: boolean
   points: number
+  maxXp?: number
   onAction: () => void
 }
 
@@ -15,6 +16,7 @@ export function CurrentTaskCard({
   hasQuestionnairePending,
   hasMaterialToRead,
   points,
+  maxXp = 1000,
   onAction,
 }: CurrentTaskCardProps) {
   const taskLabel = hasQuestionnairePending
@@ -62,7 +64,9 @@ export function CurrentTaskCard({
         )}
         <div className="flex items-center gap-2 pt-2 border-t border-amber-100">
           <Sparkles className="w-4 h-4 text-amber-600" />
-          <span className="text-sm font-bold text-amber-700">{points} pontos acumulados</span>
+          <span className="text-sm font-bold text-amber-700">
+            {points} / {maxXp} XP
+          </span>
         </div>
       </div>
     </Card>

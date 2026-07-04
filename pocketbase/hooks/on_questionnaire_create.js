@@ -6,19 +6,20 @@ onRecordAfterCreateSuccess((e) => {
     const user = $app.findRecordById('users', patientId)
     const weekNum = e.record.getInt('week_number')
 
-    var basePoints = 10
-    if (weekNum === 0 || weekNum === 2) {
-      basePoints = 10
-    } else if (weekNum === 4 || weekNum === 6) {
-      basePoints = 15
-    } else if (weekNum === 8 || weekNum === 10) {
-      basePoints = 20
-    } else if (weekNum === 12) {
-      basePoints = 25
+    var scheduledWeeks = [0, 2, 4, 6, 8, 10, 12]
+    var weekBasePoints = {
+      0: 100,
+      2: 110,
+      4: 120,
+      6: 135,
+      8: 145,
+      10: 155,
+      12: 170,
     }
 
+    var basePoints = weekBasePoints[weekNum] || 100
+
     var streakBonus = 0
-    var scheduledWeeks = [0, 2, 4, 6, 8, 10, 12]
     var sIdx = scheduledWeeks.indexOf(weekNum)
     if (sIdx > 0) {
       var prevWeek = scheduledWeeks[sIdx - 1]

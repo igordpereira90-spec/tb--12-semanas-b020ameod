@@ -13,6 +13,7 @@ import { CurrentTaskCard } from '@/components/patient/CurrentTaskCard'
 import { BadgesGallery } from '@/components/patient/BadgesGallery'
 import { useUnlocks } from '@/hooks/use-unlocks'
 import { getCurrentWeek, getProgress, getProgramWeek } from '@/lib/patient-utils'
+import { MAX_XP, getXPProgress } from '@/lib/scoring'
 import type { Questionnaire } from '@/services/questionnaires'
 import type { EducationalMaterial } from '@/services/educational_materials'
 
@@ -59,6 +60,7 @@ export default function PatientHome() {
   const points = user?.points ?? 0
   const currentWeek = getCurrentWeek(questionnaires)
   const progress = getProgress(questionnaires)
+  const xpProgress = getXPProgress(points)
   const completedWeeks = questionnaires.map((q) => q.week_number)
   const programWeek = getProgramWeek(questionnaires)
 
@@ -85,6 +87,7 @@ export default function PatientHome() {
         hasQuestionnairePending={hasQuestionnairePending}
         hasMaterialToRead={hasMaterialToRead}
         points={points}
+        maxXp={MAX_XP}
         onAction={handleAction}
       />
 
@@ -92,13 +95,19 @@ export default function PatientHome() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-800">Sua Jornada</h2>
           <span className="text-sm font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">
-            {progress}% Concluído
+            {points} / {MAX_XP} XP
           </span>
         </div>
         <Card className="p-2 md:p-6 shadow-sm border-slate-100">
           <Timeline completedWeeks={completedWeeks} unlockedWeeks={unlockedWeeks} />
-          <div className="mt-8 px-4 pb-4">
-            <Progress value={progress} className="h-3 bg-slate-100" />
+          <div className="mt-8 px-4 pb-4 space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span>Progresso XP</span>
+              <span>
+                {points} / {MAX_XP} XP
+              </span>
+            </div>
+            <Progress value={xpProgress} className="h-3 bg-slate-100" />
           </div>
         </Card>
         {unlockedWeeks.length > 0 && (

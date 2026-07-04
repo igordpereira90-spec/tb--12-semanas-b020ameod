@@ -4,6 +4,7 @@ import { useUnlocks } from '@/hooks/use-unlocks'
 import { useToast } from '@/hooks/use-toast'
 import { getEducationalMaterials } from '@/services/educational_materials'
 import { parseUserBadges, recordMaterialRead, refreshAuthUser } from '@/services/gamification'
+import { MAX_XP } from '@/lib/scoring'
 import type { EducationalMaterial } from '@/services/educational_materials'
 import { getQuestionnaires } from '@/services/questionnaires'
 import { Card } from '@/components/ui/card'
@@ -69,7 +70,9 @@ export default function PatientLibrary() {
         </div>
         <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-4 py-2 rounded-full">
           <Star className="w-4 h-4" />
-          <span className="text-sm font-bold">{user?.points ?? 0} pontos</span>
+          <span className="text-sm font-bold">
+            {user?.points ?? 0} / {MAX_XP} XP
+          </span>
         </div>
       </div>
 

@@ -1,3 +1,5 @@
+export const MAX_XP = 1000
+
 export interface PointCalculation {
   base: number
   streak: number
@@ -6,12 +8,18 @@ export interface PointCalculation {
 
 const SCHEDULED_WEEKS = [0, 2, 4, 6, 8, 10, 12]
 
+const WEEKLY_BASE_POINTS: Record<number, number> = {
+  0: 100,
+  2: 110,
+  4: 120,
+  6: 135,
+  8: 145,
+  10: 155,
+  12: 170,
+}
+
 export function getBasePoints(weekNumber: number): number {
-  if (weekNumber === 0 || weekNumber === 2) return 10
-  if (weekNumber === 4 || weekNumber === 6) return 15
-  if (weekNumber === 8 || weekNumber === 10) return 20
-  if (weekNumber === 12) return 25
-  return 10
+  return WEEKLY_BASE_POINTS[weekNumber] ?? 100
 }
 
 export function getPreviousScheduledWeek(weekNumber: number): number | null {
@@ -29,4 +37,8 @@ export function calculateQuestionnairePoints(
   const hasStreak = prevWeek !== null && completedWeeks.includes(prevWeek)
   const streak = hasStreak ? 5 : 0
   return { base, streak, total: base + streak }
+}
+
+export function getXPProgress(points: number): number {
+  return Math.min(100, (points / MAX_XP) * 100)
 }
