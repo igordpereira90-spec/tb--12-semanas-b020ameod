@@ -23,6 +23,7 @@ import {
 import { PatientChart } from '@/components/professional/PatientChart'
 import { LongitudinalTable } from '@/components/professional/LongitudinalTable'
 import { QuestionnaireHistory } from '@/components/professional/QuestionnaireHistory'
+import { QuestionnaireEditDialog } from '@/components/professional/QuestionnaireEditDialog'
 import { useToast } from '@/hooks/use-toast'
 import { getAlerts, generateSummary, getCurrentWeek } from '@/lib/patient-utils'
 import type { AppUser } from '@/services/users'
