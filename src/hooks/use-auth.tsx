@@ -80,15 +80,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const acceptConsent = async () => {
     if (!user?.id) return
-    try {
-      await pb.collection('users').update(user.id, {
-        consent_accepted: true,
-        consent_date: new Date().toISOString(),
-      })
-      await pb.collection('users').authRefresh()
-    } catch (err) {
-      throw err
-    }
+    await pb.collection('users').update(user.id, {
+      consent_accepted: true,
+      consent_date: new Date().toISOString(),
+    })
+    await pb.collection('users').authRefresh()
   }
 
   return (
