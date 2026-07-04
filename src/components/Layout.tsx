@@ -15,7 +15,11 @@ export default function Layout() {
     { path: '/patient/questionnaires', label: 'Questionários', icon: ClipboardList },
     { path: '/patient/library', label: 'Material Educativo', icon: BookOpen },
   ]
-  const proNav = [{ path: '/pro', label: 'Dashboard', icon: LayoutDashboard }]
+  const proNav = [
+    { path: '/pro', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/pro/questionnaire-settings', label: 'Questionário', icon: ClipboardList },
+    { path: '/pro/materials', label: 'Material Educativo', icon: BookOpen },
+  ]
   const navItems = role === 'professional' ? proNav : patientNav
 
   const handleSignOut = () => {

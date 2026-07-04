@@ -49,7 +49,7 @@ export default function PatientHome() {
   const currentWeek = getCurrentWeek(questionnaires)
   const progress = getProgress(questionnaires)
   const completedWeeks = questionnaires.map((q) => q.week_number)
-  const medals = calculateMedals(questionnaires, 2)
+  const medals = calculateMedals(questionnaires)
 
   return (
     <div className="space-y-8 animate-fade-in">

@@ -117,7 +117,7 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
       </div>
 
       <div className="space-y-2">
-        <Label className="text-sm font-medium">Áreas de melhoria percebida</Label>
+        <Label className="text-sm font-medium">Em quais áreas você teve melhora essa semana?</Label>
         <div className="grid grid-cols-2 gap-2">
           {IMPROVEMENT_OPTIONS.map((opt) => (
             <div key={opt} className="flex items-center gap-2">
@@ -153,13 +153,14 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
         ))}
       </div>
 
-      <div className="space-y-4">
-        <Label className="text-sm font-medium block">Frequência dos sintomas</Label>
+      <div className="space-y-4 pt-4">
         {FREQUENCY_FIELDS.slice(0, 10).map((f) => renderFreqSelect(f.name, f.label))}
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-slate-700">Alteração de apetite/peso</Label>
+      <div className="space-y-1.5 pt-4">
+        <Label className="text-sm font-medium text-slate-700">
+          Tem apresentado alteração do apetite ou do peso?
+        </Label>
         <Select
           value={form.appetite_weight_change}
           onValueChange={(v) => update('appetite_weight_change', v)}

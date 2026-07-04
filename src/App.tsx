@@ -16,6 +16,8 @@ import PatientLibrary from './pages/patient/Library'
 
 import ProDashboard from './pages/professional/Dashboard'
 import PatientDetail from './pages/professional/PatientDetail'
+import ProQuestionnaireSettings from './pages/professional/QuestionnaireSettings'
+import ProMaterials from './pages/professional/Materials'
 
 const App = () => (
   <BrowserRouter>
@@ -44,6 +46,8 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/pro" element={<ProDashboard />} />
               <Route path="/pro/patient/:id" element={<PatientDetail />} />
+              <Route path="/pro/questionnaire-settings" element={<ProQuestionnaireSettings />} />
+              <Route path="/pro/materials" element={<ProMaterials />} />
             </Route>
           </Route>
 

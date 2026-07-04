@@ -18,18 +18,30 @@ export const ALL_WEEKS = [0, 2, 4, 6, 8, 10, 12]
 export const SLIDER_FIELDS = [
   {
     name: 'overall_feeling',
-    label: 'Como você está se sentindo no geral?',
+    label: 'De 0 a 10, como está se sentindo esta semana?',
     hint: '0 = ruim / 10 = ótimo',
   },
-  { name: 'mood_score', label: 'Humor', hint: '0 = ruim / 10 = ótimo' },
-  { name: 'energy_score', label: 'Energia/disposição', hint: '0 = ruim / 10 = ótimo' },
-  { name: 'sleep_score', label: 'Qualidade do sono', hint: '0 = ruim / 10 = ótimo' },
+  {
+    name: 'mood_score',
+    label: 'Qual a nota você daria para o seu humor essa semana?',
+    hint: '0 = ruim / 10 = ótimo',
+  },
+  {
+    name: 'energy_score',
+    label: 'Qual a nota você daria para a sua energia/disposição essa semana?',
+    hint: '0 = ruim / 10 = ótimo',
+  },
+  {
+    name: 'sleep_score',
+    label: 'Qual a nota você daria para o seu sono essa semana?',
+    hint: '0 = ruim / 10 = ótimo',
+  },
 ]
 
 export const FREQUENCY_FIELDS = [
-  { name: 'anxiety_freq', label: 'Ansiedade' },
-  { name: 'insomnia_freq', label: 'Insônia' },
-  { name: 'daytime_sleepiness', label: 'Sonolência diurna' },
+  { name: 'anxiety_freq', label: 'Com que frequência tem apresentado ansiedade esta semana?' },
+  { name: 'insomnia_freq', label: 'Com que frequência tem apresentado insônia?' },
+  { name: 'daytime_sleepiness', label: 'Com que frequência tem apresentado sonolência pelo dia?' },
   { name: 'talkativeness', label: 'Com que frequência tem ficado mais falante do que o habitual?' },
   { name: 'racing_thoughts', label: 'Com que frequência tem apresentado pensamentos acelerados?' },
   {

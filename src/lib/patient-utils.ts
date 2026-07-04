@@ -9,10 +9,7 @@ export interface Medal {
   icon: string
 }
 
-export function calculateMedals(
-  questionnaires: Questionnaire[],
-  libraryReadCount: number,
-): Medal[] {
+export function calculateMedals(questionnaires: Questionnaire[]): Medal[] {
   const weeks = questionnaires.map((q) => q.week_number)
   return [
     {
@@ -31,10 +28,10 @@ export function calculateMedals(
     },
     {
       id: 3,
-      name: 'Autocuidado',
-      desc: 'Leu 3 materiais',
-      earned: libraryReadCount >= 3,
-      icon: 'BookOpen',
+      name: 'Engajamento',
+      desc: 'Mais da metade do programa',
+      earned: weeks.length >= 3,
+      icon: 'Star',
     },
     {
       id: 4,
