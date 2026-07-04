@@ -7,7 +7,7 @@ interface AuthContextType {
   user: any
   isAuthenticated: boolean
   role: Role | null
-  signUp: (email: string, password: string, role: Role, name: string) => Promise<{ error: any }>
+  signUp: (email: string, password: string, name: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => void
   loading: boolean
@@ -45,11 +45,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [])
 
-  const signUp = async (email: string, password: string, role: Role, name: string) => {
+  const signUp = async (email: string, password: string, name: string) => {
     try {
       await pb
         .collection('users')
-        .create({ email, password, passwordConfirm: password, role, name })
+        .create({ email, password, passwordConfirm: password, role: 'patient', name })
       await pb.collection('users').authWithPassword(email, password)
       return { error: null }
     } catch (error) {

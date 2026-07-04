@@ -6,9 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
-import { Brain, User, Stethoscope, ArrowRight } from 'lucide-react'
+import { Brain, ArrowRight } from 'lucide-react'
 
 export default function Login() {
   const { signIn, signUp } = useAuth()
@@ -16,7 +15,6 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [role, setRole] = useState<'patient' | 'professional'>('patient')
   const [error, setError] = useState('')
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -33,7 +31,7 @@ export default function Login() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    const { error } = await signUp(email, password, role, name || undefined)
+    const { error } = await signUp(email, password, name || undefined)
     if (error) {
       setError(getErrorMessage(error))
       return
@@ -116,32 +114,6 @@ export default function Login() {
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Eu sou</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {(
-                      [
-                        ['patient', 'Paciente', User],
-                        ['professional', 'Profissional', Stethoscope],
-                      ] as const
-                    ).map(([val, label, Icon]) => (
-                      <button
-                        key={val}
-                        type="button"
-                        onClick={() => setRole(val)}
-                        className={cn(
-                          'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all',
-                          role === val
-                            ? 'border-primary bg-primary/5 text-primary'
-                            : 'border-slate-200 text-slate-500 hover:border-slate-300',
-                        )}
-                      >
-                        <Icon className="w-6 h-6" />
-                        <span className="text-sm font-medium">{label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="su-name">Nome</Label>
                   <Input

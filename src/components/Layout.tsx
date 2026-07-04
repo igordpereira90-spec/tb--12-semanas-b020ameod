@@ -1,13 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import {
-  LayoutDashboard,
-  BookOpen,
-  ClipboardList,
-  Activity,
-  Bell,
-  ShieldAlert,
-  LogOut,
-} from 'lucide-react'
+import { LayoutDashboard, BookOpen, ClipboardList, Activity, Bell, LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -21,7 +13,7 @@ export default function Layout() {
   const patientNav = [
     { path: '/patient', label: 'Evolução', icon: Activity },
     { path: '/patient/questionnaires', label: 'Questionários', icon: ClipboardList },
-    { path: '/patient/library', label: 'Biblioteca', icon: BookOpen },
+    { path: '/patient/library', label: 'Material Educativo', icon: BookOpen },
   ]
   const proNav = [{ path: '/pro', label: 'Dashboard', icon: LayoutDashboard }]
   const navItems = role === 'professional' ? proNav : patientNav
@@ -120,15 +112,6 @@ export default function Layout() {
         <div className="flex-1 p-4 md:p-8 overflow-y-auto animate-fade-in-up">
           <div className="max-w-6xl mx-auto space-y-6">
             <Outlet />
-            {role === 'patient' && (
-              <div className="mt-12 flex items-center justify-center p-4 bg-amber-50 rounded-2xl text-amber-800 text-sm text-center border border-amber-100/50">
-                <ShieldAlert className="w-5 h-5 mr-3 flex-shrink-0" />
-                <p>
-                  Este programa não substitui consulta médica. Em caso de urgência, procure
-                  emergência ou seu médico.
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </main>

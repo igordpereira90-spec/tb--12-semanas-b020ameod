@@ -20,7 +20,7 @@ export default function PatientLibrary() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Biblioteca de Apoio</h1>
+          <h1 className="text-2xl font-bold text-slate-800 mb-2">Material Educativo</h1>
           <p className="text-slate-600">A psicoeducação é parte fundamental do seu tratamento.</p>
         </div>
         <Badge

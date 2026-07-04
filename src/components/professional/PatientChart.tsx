@@ -4,7 +4,9 @@ import type { Questionnaire } from '@/services/questionnaires'
 
 const chartConfig = {
   overall_feeling: { label: 'Sensação Geral', color: 'hsl(var(--chart-1))' },
-  mood_score: { label: 'Humor', color: 'hsl(var(--chart-3))' },
+  mood_score: { label: 'Humor', color: 'hsl(var(--chart-2))' },
+  energy_score: { label: 'Energia', color: 'hsl(var(--chart-3))' },
+  sleep_score: { label: 'Sono', color: 'hsl(var(--chart-4))' },
 }
 
 interface Props {
@@ -16,6 +18,8 @@ export function PatientChart({ questionnaires }: Props) {
     week: `S${q.week_number}`,
     overall_feeling: q.overall_feeling,
     mood_score: q.mood_score,
+    energy_score: q.energy_score,
+    sleep_score: q.sleep_score,
   }))
 
   if (data.length === 0) {
@@ -53,6 +57,20 @@ export function PatientChart({ questionnaires }: Props) {
             type="monotone"
             dataKey="mood_score"
             stroke="var(--color-mood_score)"
+            strokeWidth={3}
+            dot={{ r: 4 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="energy_score"
+            stroke="var(--color-energy_score)"
+            strokeWidth={3}
+            dot={{ r: 4 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="sleep_score"
+            stroke="var(--color-sleep_score)"
             strokeWidth={3}
             dot={{ r: 4 }}
           />

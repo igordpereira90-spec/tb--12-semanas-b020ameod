@@ -8,8 +8,19 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { ArrowLeft, AlertTriangle, TrendingUp, Save, Loader2, Activity } from 'lucide-react'
+import {
+  ArrowLeft,
+  AlertTriangle,
+  TrendingUp,
+  Save,
+  Loader2,
+  Activity,
+  Table2,
+  History,
+} from 'lucide-react'
 import { PatientChart } from '@/components/professional/PatientChart'
+import { LongitudinalTable } from '@/components/professional/LongitudinalTable'
+import { QuestionnaireHistory } from '@/components/professional/QuestionnaireHistory'
 import { useToast } from '@/hooks/use-toast'
 import { getAlerts, generateSummary, getCurrentWeek } from '@/lib/patient-utils'
 import type { AppUser } from '@/services/users'
@@ -114,38 +125,50 @@ export default function PatientDetail() {
           </h2>
           <PatientChart questionnaires={sorted} />
         </Card>
-
-        <div className="space-y-6">
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4 text-slate-800">Comparativo S0 vs Atual</h2>
-            <div className="space-y-3">
-              {metrics.map((m) => (
-                <div
-                  key={m.label}
-                  className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-0 last:pb-0"
-                >
-                  <span className="text-sm font-medium text-slate-600">{m.label}</span>
-                  <div className="flex items-center gap-3 text-sm">
-                    <span className="text-slate-400">{m.base}</span>
-                    <ArrowLeft className="w-3 h-3 text-slate-300 rotate-180" />
-                    <span
-                      className={`font-bold ${m.curr > m.base + 2 ? 'text-amber-500' : m.curr >= m.base ? 'text-emerald-600' : 'text-rose-500'}`}
-                    >
-                      {m.curr}
-                    </span>
-                  </div>
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold mb-4 text-slate-800">Comparativo S0 vs Atual</h2>
+          <div className="space-y-3">
+            {metrics.map((m) => (
+              <div
+                key={m.label}
+                className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-0 last:pb-0"
+              >
+                <span className="text-sm font-medium text-slate-600">{m.label}</span>
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="text-slate-400">{m.base}</span>
+                  <ArrowLeft className="w-3 h-3 text-slate-300 rotate-180" />
+                  <span
+                    className={`font-bold ${m.curr > m.base + 2 ? 'text-amber-500' : m.curr >= m.base ? 'text-emerald-600' : 'text-rose-500'}`}
+                  >
+                    {m.curr}
+                  </span>
                 </div>
-              ))}
-            </div>
-            <div className="mt-6 p-4 bg-slate-50 rounded-lg text-sm text-slate-700 leading-relaxed border border-slate-100">
-              <strong className="block mb-1 text-slate-900 flex items-center gap-1">
-                <Activity className="w-4 h-4" /> Resumo Automático:
-              </strong>
-              {summary}
-            </div>
-          </Card>
-        </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 p-4 bg-slate-50 rounded-lg text-sm text-slate-700 leading-relaxed border border-slate-100">
+            <strong className="block mb-1 text-slate-900 flex items-center gap-1">
+              <Activity className="w-4 h-4" /> Resumo Automático:
+            </strong>
+            {summary}
+          </div>
+        </Card>
       </div>
+
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
+          <Table2 className="w-5 h-5 mr-2 text-primary" /> Comparativo Longitudinal (Semanas 0, 2,
+          4, 8, 10)
+        </h2>
+        <LongitudinalTable questionnaires={sorted} />
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
+          <History className="w-5 h-5 mr-2 text-primary" /> Histórico de Questionários
+        </h2>
+        <QuestionnaireHistory questionnaires={sorted} />
+      </Card>
 
       <Card className="p-6">
         <h2 className="text-lg font-semibold mb-4 text-slate-800">Notas Profissionais (Privado)</h2>

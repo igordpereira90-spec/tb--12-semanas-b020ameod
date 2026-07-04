@@ -1,0 +1,86 @@
+import { QUESTIONNAIRE_WEEKS, FREQUENCY_FIELDS } from '@/lib/questionnaire-config'
+import type { Questionnaire } from '@/services/questionnaires'
+
+const SHORT_LABELS: Record<string, string> = {
+  anxiety_freq: 'Ansiedade',
+  insomnia_freq: 'Insônia',
+  daytime_sleepiness: 'Sonolência',
+  talkativeness: 'Fala acelerada',
+  racing_thoughts: 'Pens. acelerados',
+  increased_goal_activity: 'Ativ. dirigida',
+  risky_behavior: 'Comport. risco',
+  euphoria: 'Euforia',
+  depressed_mood: 'Humor deprimido',
+  loss_of_interest: 'Perda interesse',
+  concentration_change: 'Concentração',
+  physical_activity: 'Ativ. física',
+  appetite_weight_change: 'Apetite/Peso',
+  functional_impairment: 'Prejuízo func.',
+}
+
+const SCORE_ROWS = [
+  { label: 'Humor', key: 'mood_score' },
+  { label: 'Energia', key: 'energy_score' },
+  { label: 'Sono', key: 'sleep_score' },
+  { label: 'Sensação Geral', key: 'overall_feeling' },
+]
+
+interface Props {
+  questionnaires: Questionnaire[]
+}
+
+export function LongitudinalTable({ questionnaires }: Props) {
+  const weekData = QUESTIONNAIRE_WEEKS.map((w) => ({
+    week: w,
+    data: questionnaires.find((q) => q.week_number === w),
+  }))
+
+  const allRows = [
+    ...SCORE_ROWS,
+    ...FREQUENCY_FIELDS.map((f) => ({ label: SHORT_LABELS[f.name] || f.label, key: f.name })),
+    { label: SHORT_LABELS.appetite_weight_change, key: 'appetite_weight_change' },
+    { label: SHORT_LABELS.functional_impairment, key: 'functional_impairment' },
+  ]
+
+  return (
+    <div className="overflow-x-auto rounded-lg border border-slate-100">
+      <table className="w-full text-sm min-w-[600px]">
+        <thead>
+          <tr className="bg-slate-50 border-b border-slate-200">
+            <th className="text-left py-3 px-3 font-semibold text-slate-600 sticky left-0 bg-slate-50 z-10">
+              Métrica
+            </th>
+            {weekData.map((w) => (
+              <th
+                key={w.week}
+                className="text-center py-3 px-3 font-semibold text-slate-600 min-w-[90px]"
+              >
+                Semana {w.week}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {allRows.map((row, idx) => (
+            <tr key={row.key} className={idx < SCORE_ROWS.length ? 'bg-primary/5' : ''}>
+              <td className="py-2.5 px-3 font-medium text-slate-700 sticky left-0 bg-inherit z-10 border-b border-slate-50">
+                {row.label}
+              </td>
+              {weekData.map((w) => {
+                const val = w.data ? w.data[row.key as keyof Questionnaire] : null
+                return (
+                  <td
+                    key={w.week}
+                    className="text-center py-2.5 px-3 text-slate-600 border-b border-slate-50"
+                  >
+                    {val ? String(val) : '—'}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
