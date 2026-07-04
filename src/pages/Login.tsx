@@ -30,7 +30,7 @@ export default function Login() {
     if (record?.role === 'professional') {
       navigate('/pro', { replace: true })
     } else {
-      navigate('/patient', { replace: true })
+      navigate('/', { replace: true })
     }
   }
 
