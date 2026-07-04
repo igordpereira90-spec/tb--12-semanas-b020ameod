@@ -5,10 +5,12 @@ import { useToast } from '@/hooks/use-toast'
 import { useUnlocks } from '@/hooks/use-unlocks'
 import { createQuestionnaire, getQuestionnaires } from '@/services/questionnaires'
 import { QuestionnaireForm } from '@/components/patient/QuestionnaireForm'
+import { CelebrationModal } from '@/components/patient/CelebrationModal'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ClipboardList, Lock, Loader2 } from 'lucide-react'
 import { isQuestionnaireAccessible } from '@/lib/patient-utils'
 import { QUESTIONNAIRE_WEEKS, ALL_WEEKS } from '@/lib/questionnaire-config'
+import { refreshAuthUser } from '@/services/gamification'
 import type { Questionnaire } from '@/services/questionnaires'
 
 export default function QuestionnaireFormPage() {
@@ -19,6 +21,7 @@ export default function QuestionnaireFormPage() {
   const { unlockedWeeks, loading: unlocksLoading } = useUnlocks(user?.id)
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [loadingQs, setLoadingQs] = useState(true)
+  const [celebration, setCelebration] = useState(false)
   const weekNumber = Number(week) || 0
 
   useEffect(() => {
@@ -36,8 +39,8 @@ export default function QuestionnaireFormPage() {
     if (!user?.id) return
     try {
       await createQuestionnaire({ ...data, patient: user.id } as Partial<Questionnaire>)
-      toast({ title: 'Sucesso!', description: 'Questionário salvo com sucesso.', duration: 3000 })
-      navigate('/patient')
+      await refreshAuthUser()
+      setCelebration(true)
     } catch {
       toast({ title: 'Erro', description: 'Não foi possível salvar o questionário.' })
     }
@@ -97,6 +100,15 @@ export default function QuestionnaireFormPage() {
         </div>
       </div>
       <QuestionnaireForm week={weekNumber} onSubmit={handleSubmit} />
+      <CelebrationModal
+        open={celebration}
+        onClose={() => {
+          setCelebration(false)
+          navigate('/patient')
+        }}
+        points={10}
+        message="Parabéns! Você está cuidando da sua saúde."
+      />
     </div>
   )
 }

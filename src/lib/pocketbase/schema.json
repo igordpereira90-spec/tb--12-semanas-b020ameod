@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T14:02:48.519Z",
+  "generatedAt": "2026-07-04T14:19:31.719Z",
   "collections": [
     {
       "name": "users",
@@ -44,6 +44,18 @@
           "required": false,
           "system": false,
           "selectValues": ["patient", "professional"]
+        },
+        {
+          "name": "points",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "badges",
+          "type": "json",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [

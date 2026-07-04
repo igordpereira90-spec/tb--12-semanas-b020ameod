@@ -3,28 +3,33 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
 import { getQuestionnaires } from '@/services/questionnaires'
+import { getEducationalMaterials } from '@/services/educational_materials'
+import { parseUserBadges } from '@/services/gamification'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Button } from '@/components/ui/button'
-import { ArrowRight, Sparkles, Loader2, Unlock } from 'lucide-react'
+import { Unlock, Loader2 } from 'lucide-react'
 import { Timeline } from '@/components/patient/Timeline'
-import { MedalCase } from '@/components/patient/MedalCase'
+import { CurrentTaskCard } from '@/components/patient/CurrentTaskCard'
+import { BadgesGallery } from '@/components/patient/BadgesGallery'
 import { useUnlocks } from '@/hooks/use-unlocks'
-import { calculateMedals, getCurrentWeek, getProgress } from '@/lib/patient-utils'
+import { getCurrentWeek, getProgress, getProgramWeek } from '@/lib/patient-utils'
 import type { Questionnaire } from '@/services/questionnaires'
+import type { EducationalMaterial } from '@/services/educational_materials'
 
 export default function PatientHome() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
+  const [materials, setMaterials] = useState<EducationalMaterial[]>([])
   const [loading, setLoading] = useState(true)
   const { unlockedWeeks } = useUnlocks(user?.id)
 
   const loadData = useCallback(async () => {
     if (!user?.id) return
     try {
-      const data = await getQuestionnaires(user.id)
-      setQuestionnaires(data)
+      const [qs, mats] = await Promise.all([getQuestionnaires(user.id), getEducationalMaterials()])
+      setQuestionnaires(qs)
+      setMaterials(mats)
     } catch {
       setQuestionnaires([])
     } finally {
@@ -38,6 +43,9 @@ export default function PatientHome() {
   useRealtime('questionnaires', () => {
     loadData()
   })
+  useRealtime('educational_materials', () => {
+    loadData()
+  })
 
   if (loading) {
     return (
@@ -47,33 +55,38 @@ export default function PatientHome() {
     )
   }
 
-  const name = user?.name || 'Usuário'
+  const userBadges = parseUserBadges(user?.badges)
+  const points = user?.points ?? 0
   const currentWeek = getCurrentWeek(questionnaires)
   const progress = getProgress(questionnaires)
   const completedWeeks = questionnaires.map((q) => q.week_number)
-  const medals = calculateMedals(questionnaires)
+  const programWeek = getProgramWeek(questionnaires)
+
+  const hasQuestionnairePending = !completedWeeks.includes(currentWeek)
+  const nextUnreadMaterial = materials.find(
+    (m) =>
+      (m.week_number <= programWeek || unlockedWeeks.includes(m.week_number)) &&
+      !userBadges.readMaterials.includes(m.id),
+  )
+  const hasMaterialToRead = !hasQuestionnairePending && !!nextUnreadMaterial
+
+  const handleAction = () => {
+    if (hasQuestionnairePending) {
+      navigate(`/patient/questionnaires/${currentWeek}`)
+    } else {
+      navigate('/patient/library')
+    }
+  }
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <section className="glass-panel p-6 md:p-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Olá, {name}! 👋</h1>
-            <p className="text-slate-600 flex items-center">
-              <Sparkles className="w-5 h-5 text-amber-500 mr-2" />
-              Você está indo muito bem. A constância é a chave para o equilíbrio.
-            </p>
-          </div>
-          <Button
-            onClick={() => navigate('/patient/questionnaires')}
-            size="lg"
-            className="rounded-full shadow-lg shadow-primary/20"
-          >
-            Avaliação Semana {currentWeek} <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-      </section>
+    <div className="space-y-6 animate-fade-in">
+      <CurrentTaskCard
+        weekNumber={currentWeek}
+        hasQuestionnairePending={hasQuestionnairePending}
+        hasMaterialToRead={hasMaterialToRead}
+        points={points}
+        onAction={handleAction}
+      />
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
@@ -104,7 +117,7 @@ export default function PatientHome() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-slate-800">Suas Conquistas</h2>
-        <MedalCase medals={medals} />
+        <BadgesGallery earnedBadges={userBadges.earnedBadges} />
       </section>
     </div>
   )

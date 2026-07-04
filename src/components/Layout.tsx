@@ -1,5 +1,13 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, BookOpen, ClipboardList, Activity, Bell, LogOut } from 'lucide-react'
+import {
+  LayoutDashboard,
+  BookOpen,
+  ClipboardList,
+  Activity,
+  Bell,
+  LogOut,
+  Home,
+} from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -12,9 +20,9 @@ export default function Layout() {
   const navigate = useNavigate()
 
   const patientNav = [
-    { path: '/patient', label: 'Evolução', icon: Activity },
-    { path: '/patient/questionnaires', label: 'Questionários', icon: ClipboardList },
-    { path: '/patient/library', label: 'Material Educativo', icon: BookOpen },
+    { path: '/patient', label: 'Início', icon: Home },
+    { path: '/patient/library', label: 'Material', icon: BookOpen },
+    { path: '/patient/questionnaires', label: 'Progresso', icon: Activity },
   ]
   const proNav = [
     { path: '/pro', label: 'Dashboard', icon: LayoutDashboard },

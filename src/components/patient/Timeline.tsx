@@ -33,7 +33,7 @@ export function Timeline({ completedWeeks, unlockedWeeks = [] }: TimelineProps) 
                   className={cn(
                     'w-11 h-11 rounded-full flex items-center justify-center z-10 transition-all duration-300',
                     isCompleted
-                      ? 'bg-emerald-100 text-emerald-600 shadow-sm'
+                      ? 'bg-amber-100 text-amber-600 shadow-sm'
                       : isCurrent
                         ? 'bg-primary text-white shadow-lg shadow-primary/30 ring-4 ring-primary/20 scale-110'
                         : isManuallyUnlocked
@@ -69,7 +69,7 @@ export function Timeline({ completedWeeks, unlockedWeeks = [] }: TimelineProps) 
                     className={cn(
                       'h-full transition-all duration-1000',
                       isCompleted
-                        ? 'bg-emerald-400 w-full'
+                        ? 'bg-amber-400 w-full'
                         : isCurrent
                           ? 'bg-primary/30 w-1/2'
                           : isManuallyUnlocked

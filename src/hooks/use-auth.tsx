@@ -47,9 +47,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      await pb
-        .collection('users')
-        .create({ email, password, passwordConfirm: password, role: 'patient', name })
+      await pb.collection('users').create({
+        email,
+        password,
+        passwordConfirm: password,
+        role: 'patient',
+        name,
+        points: 0,
+        badges: { earnedBadges: [], readMaterials: [] },
+      })
       await pb.collection('users').authWithPassword(email, password)
       return { error: null }
     } catch (error) {

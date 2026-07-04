@@ -116,3 +116,11 @@ export function isMaterialAccessible(
   if (unlockedWeeks.includes(week)) return true
   return week <= programWeek
 }
+
+export function getProgramWeek(questionnaires: Questionnaire[]): number {
+  if (questionnaires.length === 0) return 0
+  const sorted = [...questionnaires].sort((a, b) => a.week_number - b.week_number)
+  const start = new Date(sorted[0].created).getTime()
+  const diff = Math.floor((Date.now() - start) / (1000 * 60 * 60 * 24 * 7))
+  return Math.max(0, diff)
+}

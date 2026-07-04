@@ -6,6 +6,8 @@ export interface AppUser {
   email: string
   avatar: string
   role: 'patient' | 'professional'
+  points: number
+  badges: unknown
   created: string
   updated: string
 }
