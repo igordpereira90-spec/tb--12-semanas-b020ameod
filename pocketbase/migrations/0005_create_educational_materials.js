@@ -9,7 +9,7 @@ migrate(
       updateRule: "@request.auth.role = 'professional'",
       deleteRule: "@request.auth.role = 'professional'",
       fields: [
-        { name: 'week_number', type: 'number', required: true, onlyInt: true, min: 0 },
+        { name: 'week_number', type: 'number', required: false, onlyInt: true, min: 0 },
         { name: 'title', type: 'text', required: true },
         { name: 'objective', type: 'text' },
         { name: 'content', type: 'editor' },
