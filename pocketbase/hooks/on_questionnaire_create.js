@@ -4,8 +4,40 @@ onRecordAfterCreateSuccess((e) => {
 
   try {
     const user = $app.findRecordById('users', patientId)
+    const weekNum = e.record.getInt('week_number')
+
+    var basePoints = 10
+    if (weekNum === 0 || weekNum === 2) {
+      basePoints = 10
+    } else if (weekNum === 4 || weekNum === 6) {
+      basePoints = 15
+    } else if (weekNum === 8 || weekNum === 10) {
+      basePoints = 20
+    } else if (weekNum === 12) {
+      basePoints = 25
+    }
+
+    var streakBonus = 0
+    var scheduledWeeks = [0, 2, 4, 6, 8, 10, 12]
+    var sIdx = scheduledWeeks.indexOf(weekNum)
+    if (sIdx > 0) {
+      var prevWeek = scheduledWeeks[sIdx - 1]
+      var prevRecords = $app.findRecordsByFilter(
+        'questionnaires',
+        'patient = "' + patientId + '" && week_number = ' + prevWeek,
+        '',
+        1,
+        0,
+      )
+      if (prevRecords.length > 0) {
+        streakBonus = 5
+      }
+    }
+
+    var totalAwarded = basePoints + streakBonus
+
     let points = user.getInt('points') || 0
-    points += 10
+    points += totalAwarded
 
     let badgesRaw = user.get('badges')
     let badges
@@ -31,7 +63,6 @@ onRecordAfterCreateSuccess((e) => {
       0,
     )
     const qCount = questionnaires.length
-    const weekNum = e.record.getInt('week_number')
 
     if (weekNum === 0 && badges.earnedBadges.indexOf('first_milestone') === -1) {
       badges.earnedBadges.push('first_milestone')

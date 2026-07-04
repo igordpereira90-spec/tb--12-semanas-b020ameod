@@ -11,6 +11,7 @@ import { ArrowLeft, ClipboardList, Lock, Loader2 } from 'lucide-react'
 import { isQuestionnaireAccessible } from '@/lib/patient-utils'
 import { QUESTIONNAIRE_WEEKS, ALL_WEEKS } from '@/lib/questionnaire-config'
 import { refreshAuthUser } from '@/services/gamification'
+import { calculateQuestionnairePoints, type PointCalculation } from '@/lib/scoring'
 import type { Questionnaire } from '@/services/questionnaires'
 
 export default function QuestionnaireFormPage() {
@@ -22,6 +23,7 @@ export default function QuestionnaireFormPage() {
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [loadingQs, setLoadingQs] = useState(true)
   const [celebration, setCelebration] = useState(false)
+  const [earnedPoints, setEarnedPoints] = useState<PointCalculation | null>(null)
   const weekNumber = Number(week) || 0
 
   useEffect(() => {
@@ -40,6 +42,9 @@ export default function QuestionnaireFormPage() {
     try {
       await createQuestionnaire({ ...data, patient: user.id } as Partial<Questionnaire>)
       await refreshAuthUser()
+      const completedWeeks = questionnaires.map((q) => q.week_number)
+      const calc = calculateQuestionnairePoints(weekNumber, completedWeeks)
+      setEarnedPoints(calc)
       setCelebration(true)
     } catch {
       toast({ title: 'Erro', description: 'Não foi possível salvar o questionário.' })
@@ -104,9 +109,12 @@ export default function QuestionnaireFormPage() {
         open={celebration}
         onClose={() => {
           setCelebration(false)
+          refreshAuthUser()
           navigate('/patient')
         }}
-        points={10}
+        points={earnedPoints?.total}
+        basePoints={earnedPoints?.base}
+        streakBonus={earnedPoints?.streak}
         message="Parabéns! Você está cuidando da sua saúde."
       />
     </div>
