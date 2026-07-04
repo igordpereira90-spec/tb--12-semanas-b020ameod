@@ -48,22 +48,19 @@ export default function Layout() {
     .join('')
     .toUpperCase()
 
+  const homePath = role === 'professional' ? '/pro' : '/'
+
   return (
     <div className="min-h-screen flex bg-slate-50">
       <aside className="hidden md:flex flex-col w-64 border-r border-primary/10 bg-white shadow-sm rounded-none">
         <div className="p-6">
-          {role === 'professional' ? (
+          <Link to={homePath} className="block">
             <img
               src={logoUrl}
               alt="Dr. Igor Dourado Pereira"
-              className="w-full object-contain mix-blend-multiply"
+              className="w-full object-contain mix-blend-multiply transition-transform duration-200 hover:scale-[1.03]"
             />
-          ) : (
-            <h1 className="text-xl font-bold text-slate-800 leading-tight">
-              Programa <br />
-              <span className="text-primary">Transtorno Bipolar</span>
-            </h1>
-          )}
+          </Link>
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-4">
           {navItems.map((item) => {
@@ -117,17 +114,16 @@ export default function Layout() {
 
       <main className="flex-1 flex flex-col min-w-0 pb-20 md:pb-0 bg-slate-50/50">
         <header className="h-16 flex items-center justify-between px-4 md:px-8 bg-white/80 backdrop-blur-md border-b border-primary/10 sticky top-0 z-20 shadow-sm">
-          <div className="md:hidden">
-            {role === 'professional' ? (
-              <img
-                src={logoUrl}
-                alt="Dr. Igor"
-                className="h-10 object-contain mix-blend-multiply"
-              />
-            ) : (
-              <h2 className="font-bold text-slate-800 truncate">TB 12 Semanas</h2>
-            )}
-          </div>
+          <Link
+            to={homePath}
+            className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-80"
+          >
+            <img
+              src={logoUrl}
+              alt="Dr. Igor Dourado Pereira"
+              className="h-9 md:h-11 w-auto max-w-[180px] md:max-w-[220px] object-contain mix-blend-multiply"
+            />
+          </Link>
           <div className="hidden md:flex items-center text-sm font-medium text-slate-500">
             {role === 'patient' ? 'Área do Paciente' : 'Área do Profissional'}
           </div>
