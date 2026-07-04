@@ -64,7 +64,9 @@ export default function Login() {
             <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
               <Brain className="w-7 h-7" />
             </div>
-            <h1 className="text-2xl font-bold">Programa Transtorno Bipolar</h1>
+            <h1 className="text-2xl font-bold">
+              Programa de Acompanhamento TB<div>12 Semanas</div>
+            </h1>
           </div>
           <p className="text-indigo-100 text-lg leading-relaxed">
             Um acompanhamento de 12 semanas para apoiar sua jornada de equilíbrio e bem-estar.
