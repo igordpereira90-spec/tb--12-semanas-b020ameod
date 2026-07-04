@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T11:50:57.683Z",
+  "generatedAt": "2026-07-04T12:01:41.838Z",
   "collections": [
     {
       "name": "users",
@@ -86,7 +86,7 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["Humor", "Energia", "Sono", "Ansiedade", "Outro"]
+          "selectValues": ["Humor", "Energia/disposição", "Sono", "Ansiedade", "Outro"]
         },
         {
           "name": "mood_score",
@@ -195,14 +195,22 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["Sem alteração", "Aumento", "Diminuição"]
+          "selectValues": [
+            "Sem alteração do apetite ou peso",
+            "Aumento do apetite e peso",
+            "Diminuição do apetite e peso"
+          ]
         },
         {
           "name": "functional_impairment",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["Sem prejuízo", "Social", "Profissional"]
+          "selectValues": [
+            "Sem prejuízo significativo do seu funcionamento",
+            "Prejuízo do funcionamento social",
+            "Prejuízo no profissional/trabalho"
+          ]
         },
         {
           "name": "specific_evolution",

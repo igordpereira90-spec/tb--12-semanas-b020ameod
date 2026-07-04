@@ -2,40 +2,22 @@ migrate(
   (app) => {
     const col = app.findCollectionByNameOrId('questionnaires')
 
-    col.fields.remove(col.fields.getByName('improvement_areas'))
-    col.fields.add(
-      new SelectField({
-        name: 'improvement_areas',
-        values: ['Humor', 'Energia/disposição', 'Sono', 'Ansiedade', 'Outro'],
-        maxSelect: 5,
-      }),
-    )
+    const improvementField = col.fields.find((f) => f.name === 'improvement_areas')
+    improvementField.values = ['Humor', 'Energia/disposição', 'Sono', 'Ansiedade', 'Outro']
 
-    col.fields.remove(col.fields.getByName('appetite_weight_change'))
-    col.fields.add(
-      new SelectField({
-        name: 'appetite_weight_change',
-        values: [
-          'Sem alteração do apetite ou peso',
-          'Aumento do apetite e peso',
-          'Diminuição do apetite e peso',
-        ],
-        maxSelect: 1,
-      }),
-    )
+    const appetiteField = col.fields.find((f) => f.name === 'appetite_weight_change')
+    appetiteField.values = [
+      'Sem alteração do apetite ou peso',
+      'Aumento do apetite e peso',
+      'Diminuição do apetite e peso',
+    ]
 
-    col.fields.remove(col.fields.getByName('functional_impairment'))
-    col.fields.add(
-      new SelectField({
-        name: 'functional_impairment',
-        values: [
-          'Sem prejuízo significativo do seu funcionamento',
-          'Prejuízo do funcionamento social',
-          'Prejuízo no profissional/trabalho',
-        ],
-        maxSelect: 1,
-      }),
-    )
+    const functionalField = col.fields.find((f) => f.name === 'functional_impairment')
+    functionalField.values = [
+      'Sem prejuízo significativo do seu funcionamento',
+      'Prejuízo do funcionamento social',
+      'Prejuízo no profissional/trabalho',
+    ]
 
     app.save(col)
 
