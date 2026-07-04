@@ -1,12 +1,15 @@
 import type { Questionnaire } from '@/services/questionnaires'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { getAlerts } from '@/lib/patient-utils'
+import { Edit3 } from 'lucide-react'
 
 interface Props {
   questionnaires: Questionnaire[]
+  onEdit?: (q: Questionnaire) => void
 }
 
-export function QuestionnaireHistory({ questionnaires }: Props) {
+export function QuestionnaireHistory({ questionnaires, onEdit }: Props) {
   if (questionnaires.length === 0) {
     return <p className="text-center py-8 text-slate-400">Nenhum questionário preenchido.</p>
   }
@@ -52,6 +55,16 @@ export function QuestionnaireHistory({ questionnaires }: Props) {
                 <Badge variant="destructive" className="ml-1">
                   Alerta
                 </Badge>
+              )}
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onEdit(q)}
+                  className="text-primary hover:text-primary"
+                >
+                  <Edit3 className="w-4 h-4" /> Editar
+                </Button>
               )}
             </div>
           </div>

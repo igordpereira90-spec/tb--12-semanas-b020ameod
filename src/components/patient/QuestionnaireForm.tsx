@@ -30,57 +30,79 @@ import { Loader2, AlertCircle } from 'lucide-react'
 interface Props {
   week: number
   onSubmit: (data: Record<string, unknown>) => Promise<void>
+  initialData?: Record<string, unknown>
+  submitLabel?: string
+  isEditing?: boolean
 }
 
-const REQUIRED_FIELDS = [
+const BASE_REQUIRED = [
   ...FREQUENCY_FIELDS.map((f) => f.name),
   'appetite_weight_change',
   'functional_impairment',
 ]
 
-export function QuestionnaireForm({ week, onSubmit }: Props) {
+export function QuestionnaireForm({ week, onSubmit, initialData, submitLabel, isEditing }: Props) {
   const { user } = useAuth()
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, boolean>>({})
+
+  const get = (field: string, def: any) =>
+    initialData && initialData[field] !== undefined && initialData[field] !== null
+      ? initialData[field]
+      : def
+
   const [form, setForm] = useState<Record<string, any>>({
-    overall_feeling: 5,
-    mood_score: 5,
-    energy_score: 5,
-    sleep_score: 5,
-    improvement_areas: [],
-    anxiety_freq: '',
-    insomnia_freq: '',
-    daytime_sleepiness: '',
-    talkativeness: '',
-    racing_thoughts: '',
-    increased_goal_activity: '',
-    risky_behavior: '',
-    euphoria: '',
-    depressed_mood: '',
-    loss_of_interest: '',
-    concentration_change: '',
-    physical_activity: '',
-    appetite_weight_change: '',
-    functional_impairment: '',
-    specific_evolution: '',
-    future_expectations: '',
+    overall_feeling: get('overall_feeling', 5),
+    mood_score: get('mood_score', 5),
+    energy_score: get('energy_score', 5),
+    sleep_score: get('sleep_score', 5),
+    improvement_areas: Array.isArray(get('improvement_areas', []))
+      ? get('improvement_areas', [])
+      : [],
+    improvement_areas_other: get('improvement_areas_other', ''),
+    anxiety_freq: get('anxiety_freq', ''),
+    insomnia_freq: get('insomnia_freq', ''),
+    daytime_sleepiness: get('daytime_sleepiness', ''),
+    talkativeness: get('talkativeness', ''),
+    racing_thoughts: get('racing_thoughts', ''),
+    increased_goal_activity: get('increased_goal_activity', ''),
+    risky_behavior: get('risky_behavior', ''),
+    euphoria: get('euphoria', ''),
+    depressed_mood: get('depressed_mood', ''),
+    loss_of_interest: get('loss_of_interest', ''),
+    concentration_change: get('concentration_change', ''),
+    physical_activity: get('physical_activity', ''),
+    appetite_weight_change: get('appetite_weight_change', ''),
+    functional_impairment: get('functional_impairment', ''),
+    specific_evolution: get('specific_evolution', ''),
+    future_expectations: get('future_expectations', ''),
   })
+
+  const requiredFields = [
+    ...BASE_REQUIRED,
+    ...(form.improvement_areas.includes('Outro') ? ['improvement_areas_other'] : []),
+  ]
 
   const update = (field: string, value: any) => {
     setForm((p) => ({ ...p, [field]: value }))
     if (errors[field]) setErrors((p) => ({ ...p, [field]: false }))
   }
+
   const toggleArea = (opt: string) => {
     const cur = form.improvement_areas as string[]
     update('improvement_areas', cur.includes(opt) ? cur.filter((a) => a !== opt) : [...cur, opt])
+    if (opt === 'Outro' && cur.includes('Outro')) {
+      update('improvement_areas_other', '')
+    }
   }
-  const filledRequired = REQUIRED_FIELDS.filter((f) => form[f]).length
-  const progress = Math.round((filledRequired / REQUIRED_FIELDS.length) * 100)
+
+  const filledRequired = requiredFields.filter((f) => form[f]).length
+  const progress = Math.round((filledRequired / requiredFields.length) * 100)
 
   const handleSubmit = async () => {
     const newErrors: Record<string, boolean> = {}
-    REQUIRED_FIELDS.forEach((f) => {
+    requiredFields.forEach((f) => {
       if (!form[f]) newErrors[f] = true
     })
     setErrors(newErrors)
@@ -174,10 +196,12 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
         <Progress value={progress} className="h-2" />
       </div>
 
-      <Card className="p-5 space-y-2">
-        <Label className="text-sm font-medium">Nome completo</Label>
-        <Input value={user?.name || ''} readOnly className="bg-slate-50" />
-      </Card>
+      {!isEditing && (
+        <Card className="p-5 space-y-2">
+          <Label className="text-sm font-medium">Nome completo</Label>
+          <Input value={user?.name || ''} readOnly className="bg-slate-50" />
+        </Card>
+      )}
 
       <Card className="p-5 space-y-4">
         {renderSlider(SLIDER_FIELDS[0])}
@@ -198,6 +222,24 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
               </div>
             ))}
           </div>
+          {form.improvement_areas.includes('Outro') && (
+            <div className="space-y-1.5 mt-2">
+              <Label className="text-sm font-medium text-slate-700">
+                Especifique a outra área <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                value={form.improvement_areas_other}
+                onChange={(e) => update('improvement_areas_other', e.target.value)}
+                placeholder="Descreva a área de melhora..."
+                className={cn(errors.improvement_areas_other && 'border-red-400')}
+              />
+              {errors.improvement_areas_other && (
+                <p className="text-xs text-red-500 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> Obrigatório
+                </p>
+              )}
+            </div>
+          )}
         </div>
         {SLIDER_FIELDS.slice(1).map(renderSlider)}
       </Card>
@@ -253,7 +295,7 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
             <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Salvando...
           </>
         ) : (
-          'Salvar Questionário'
+          submitLabel || 'Salvar Questionário'
         )}
       </Button>
     </div>

@@ -17,6 +17,7 @@ import {
   Activity,
   Table2,
   History,
+  Lock,
 } from 'lucide-react'
 import { PatientChart } from '@/components/professional/PatientChart'
 import { LongitudinalTable } from '@/components/professional/LongitudinalTable'
@@ -34,6 +35,7 @@ export default function PatientDetail() {
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(true)
+  const [editingQ, setEditingQ] = useState<Questionnaire | null>(null)
 
   const loadData = useCallback(async () => {
     if (!id) return
@@ -55,6 +57,18 @@ export default function PatientDetail() {
   useRealtime('questionnaires', () => {
     loadData()
   })
+
+  const handleEditSubmit = async (data: Record<string, unknown>) => {
+    if (!editingQ) return
+    try {
+      await updateQuestionnaire(editingQ.id, data)
+      setEditingQ(null)
+      toast({ title: 'Sucesso!', description: 'Questionário atualizado com sucesso.' })
+      loadData()
+    } catch {
+      toast({ title: 'Erro', description: 'Não foi possível atualizar o questionário.' })
+    }
+  }
 
   if (loading) {
     return (
@@ -167,7 +181,17 @@ export default function PatientDetail() {
         <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
           <History className="w-5 h-5 mr-2 text-primary" /> Histórico de Questionários
         </h2>
-        <QuestionnaireHistory questionnaires={sorted} />
+        <QuestionnaireHistory questionnaires={sorted} onEdit={(q) => setEditingQ(q)} />
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
+          <Lock className="w-5 h-5 mr-2 text-primary" /> Gestão de Acesso
+        </h2>
+        <p className="text-sm text-slate-500 mb-4">
+          Libere manualmente semanas para este paciente, independente do progresso atual.
+        </p>
+        <AccessManagement patientId={patient.id} />
       </Card>
 
       <Card className="p-6">
@@ -189,6 +213,12 @@ export default function PatientDetail() {
           </Button>
         </div>
       </Card>
+      <QuestionnaireEditDialog
+        questionnaire={editingQ}
+        open={!!editingQ}
+        onOpenChange={(o) => !o && setEditingQ(null)}
+        onSubmit={handleEditSubmit}
+      />
     </div>
   )
 }

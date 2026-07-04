@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T12:46:32.017Z",
+  "generatedAt": "2026-07-04T13:07:24.267Z",
   "collections": [
     {
       "name": "users",
@@ -237,6 +237,12 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "improvement_areas_other",
+          "type": "text",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
@@ -295,6 +301,49 @@
       ],
       "indexes": [
         "CREATE UNIQUE INDEX idx_educ_materials_week ON educational_materials (week_number)"
+      ]
+    },
+    {
+      "name": "patient_unlocks",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && (patient = @request.auth.id || @request.auth.role = 'professional')",
+        "view": "@request.auth.id != '' && (patient = @request.auth.id || @request.auth.role = 'professional')",
+        "create": "@request.auth.role = 'professional'",
+        "update": "@request.auth.role = 'professional'",
+        "delete": "@request.auth.role = 'professional'"
+      },
+      "fields": [
+        {
+          "name": "patient",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "week_number",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_patient_unlocks_patient_week ON patient_unlocks (patient, week_number)"
       ]
     }
   ]

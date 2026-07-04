@@ -7,6 +7,7 @@ export interface Questionnaire {
   week_number: number
   overall_feeling: number
   improvement_areas: string[]
+  improvement_areas_other?: string
   mood_score: number
   energy_score: number
   sleep_score: number
@@ -42,6 +43,10 @@ export async function getQuestionnaires(patientId?: string) {
 
 export async function createQuestionnaire(data: Partial<Questionnaire>) {
   return pb.collection('questionnaires').create<Questionnaire>(data)
+}
+
+export async function updateQuestionnaire(id: string, data: Partial<Questionnaire>) {
+  return pb.collection('questionnaires').update<Questionnaire>(id, data)
 }
 
 export async function getQuestionnaireByWeek(patientId: string, week: number) {
