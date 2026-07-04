@@ -77,9 +77,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWith = async (provider: string) => {
     try {
-      await pb.collection('users').authWithOAuth2({ provider })
+      await pb.collection('users').authWithOAuth2({
+        provider,
+        createData: {
+          role: 'patient',
+          points: 0,
+          badges: { earnedBadges: [], readMaterials: [] },
+          consent_accepted: false,
+        },
+        upsertData: {
+          verified: true,
+        },
+      })
       return { error: null }
-    } catch (error) {
+    } catch (error: any) {
+      if (
+        error?.isAbort ||
+        error?.message?.toLowerCase().includes('cancelled') ||
+        error?.message?.toLowerCase().includes('popup')
+      ) {
+        return { error: { __cancelled: true, message: 'Login cancelado.' } }
+      }
       return { error }
     }
   }

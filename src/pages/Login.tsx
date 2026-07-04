@@ -40,7 +40,11 @@ export default function Login() {
     const { error } = await signInWith('google')
     setOauthLoading(false)
     if (error) {
-      setError(getErrorMessage(error))
+      if (error.__cancelled) {
+        setError('O login com Google foi cancelado.')
+      } else {
+        setError('Falha na autenticação com Google. Tente novamente mais tarde.')
+      }
       return
     }
     logAction('LOGIN').catch(() => {})
@@ -191,7 +195,7 @@ export default function Login() {
                   />
                 </svg>
               )}
-              Google
+              Entrar com Google
             </Button>
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-slate-200" />
