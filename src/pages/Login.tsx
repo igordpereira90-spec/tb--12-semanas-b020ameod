@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
+import pb from '@/lib/pocketbase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,6 +24,15 @@ export default function Login() {
   const [error, setError] = useState('')
   const [pwValidation, setPwValidation] = useState(validatePassword(''))
 
+  const redirectToDashboard = () => {
+    const record = pb.authStore.record as { role?: string } | null
+    if (record?.role === 'professional') {
+      navigate('/pro', { replace: true })
+    } else {
+      navigate('/patient', { replace: true })
+    }
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -32,7 +42,7 @@ export default function Login() {
       return
     }
     logAction('LOGIN').catch(() => {})
-    navigate('/', { replace: true })
+    redirectToDashboard()
   }
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -42,13 +52,13 @@ export default function Login() {
       setError('A senha não atende aos requisitos de complexidade.')
       return
     }
-    const { error } = await signUp(email, password, name || undefined)
+    const { error } = await signUp(email, password, name || '')
     if (error) {
       setError(getErrorMessage(error))
       return
     }
     logAction('LOGIN').catch(() => {})
-    navigate('/', { replace: true })
+    redirectToDashboard()
   }
 
   const handlePasswordChange = (val: string) => {
@@ -57,45 +67,67 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 items-center justify-center p-12">
-        <div className="text-white max-w-md">
+    <div className="min-h-screen flex bg-gradient-to-br from-amber-50 via-white to-yellow-50">
+      <div className="hidden md:flex md:w-1/2 items-center justify-center p-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#B8941F] via-[#C5A028] to-[#D4AF37]" />
+        <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute bottom-20 left-20 w-48 h-48 rounded-full bg-yellow-200/20 blur-2xl" />
+
+        <div className="relative z-10 text-white max-w-md">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Brain className="w-7 h-7" />
+            <div className="w-14 h-14 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20">
+              <Brain className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold">
-              Programa de Acompanhamento TB<div>12 Semanas</div>
-            </h1>
+            <div>
+              <p className="text-sm text-amber-100/80 tracking-widest uppercase">Programa de</p>
+              <p className="text-lg font-semibold">Acompanhamento</p>
+            </div>
           </div>
-          <p className="text-indigo-100 text-lg leading-relaxed">
-            Um acompanhamento de 12 semanas para apoiar sua jornada de equilíbrio e bem-estar.
+
+          <h1 className="font-serif text-4xl font-bold leading-tight mb-4">
+            Transtorno Bipolar
+            <span className="block text-2xl font-normal text-amber-100/90 mt-1">12 Semanas</span>
+          </h1>
+
+          <p className="text-amber-50/80 text-lg leading-relaxed mb-12">
+            Um acompanhamento clínico de excelência para apoiar sua jornada de equilíbrio e
+            bem-estar.
           </p>
-          <div className="mt-12 space-y-4">
+
+          <div className="space-y-3">
             {[
               'Questionários estruturados quinzenais',
               'Acompanhamento clínico profissional',
-              'Conteúdo psicoeducativo',
+              'Conteúdo psicoeducativo exclusivo',
               'Sistema de conquistas e motivação',
             ].map((f) => (
-              <div key={f} className="flex items-center gap-3 text-indigo-100">
-                <div className="w-1.5 h-1.5 bg-indigo-300 rounded-full" />
-                <span>{f}</span>
+              <div key={f} className="flex items-center gap-3 text-amber-50/90">
+                <div className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-sm">{f}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50">
-        <Card className="w-full max-w-md p-8 shadow-lg border-slate-100">
-          <div className="md:hidden flex items-center gap-2 mb-6">
-            <Brain className="w-6 h-6 text-primary" />
-            <span className="font-bold text-slate-800">TB 12 Semanas</span>
+      <div className="flex-1 flex items-center justify-center p-6">
+        <Card className="w-full max-w-md p-8 shadow-[0_20px_60px_-15px_rgba(180,148,31,0.15)] border-amber-100/50 bg-white">
+          <div className="md:hidden flex flex-col items-center gap-2 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#C5A028] to-[#D4AF37] rounded-xl flex items-center justify-center">
+              <Brain className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="font-serif text-xl font-bold text-amber-900">TB 12 Semanas</h1>
+          </div>
+
+          <div className="hidden md:block mb-6">
+            <h2 className="font-serif text-2xl font-bold text-slate-800">Bem-vindo</h2>
+            <p className="text-sm text-slate-500 mt-1">Acesse sua conta para continuar</p>
           </div>
 
           {sessionExpired && (
-            <Alert className="mb-4 bg-amber-50 border-amber-200 text-amber-900">
+            <Alert className="mb-4 bg-amber-50 border-amber-200">
               <ShieldAlert className="h-4 w-4 !text-amber-600" />
               <AlertDescription className="text-amber-700 text-sm">
                 Sua sessão expirou por inatividade. Faça login novamente para continuar.
@@ -103,15 +135,35 @@ export default function Login() {
             </Alert>
           )}
 
+          {error && (
+            <Alert className="mb-4 bg-rose-50 border-rose-200">
+              <XCircle className="h-4 w-4 !text-rose-500" />
+              <AlertDescription className="text-rose-700 text-sm">{error}</AlertDescription>
+            </Alert>
+          )}
+
           <Tabs defaultValue="login">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-amber-50/50">
+              <TabsTrigger
+                value="login"
+                className="data-[state=active]:bg-white data-[state=active]:text-amber-800 data-[state=active]:shadow-sm"
+              >
+                Entrar
+              </TabsTrigger>
+              <TabsTrigger
+                value="signup"
+                className="data-[state=active]:bg-white data-[state=active]:text-amber-800 data-[state=active]:shadow-sm"
+              >
+                Cadastrar
+              </TabsTrigger>
             </TabsList>
+
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">E-mail</Label>
+                  <Label htmlFor="login-email" className="text-slate-700 font-medium">
+                    E-mail
+                  </Label>
                   <Input
                     id="login-email"
                     type="email"
@@ -119,10 +171,13 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="seu@email.com"
+                    className="border-amber-100 focus:border-amber-400 focus:ring-amber-400/20"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login-pass">Senha</Label>
+                  <Label htmlFor="login-pass" className="text-slate-700 font-medium">
+                    Senha
+                  </Label>
                   <Input
                     id="login-pass"
                     type="password"
@@ -130,10 +185,14 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
+                    className="border-amber-100 focus:border-amber-400 focus:ring-amber-400/20"
                   />
                 </div>
-                {error && <p className="text-sm text-rose-600">{error}</p>}
-                <Button type="submit" className="w-full" size="lg">
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-[#C5A028] to-[#D4AF37] hover:from-[#B8941F] hover:to-[#C5A028] text-white shadow-lg shadow-amber-500/20"
+                  size="lg"
+                >
                   Entrar <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
                 <p className="text-xs text-slate-400 text-center mt-2">
@@ -141,19 +200,25 @@ export default function Login() {
                 </p>
               </form>
             </TabsContent>
+
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="su-name">Nome</Label>
+                  <Label htmlFor="su-name" className="text-slate-700 font-medium">
+                    Nome
+                  </Label>
                   <Input
                     id="su-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Seu nome"
+                    className="border-amber-100 focus:border-amber-400 focus:ring-amber-400/20"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="su-email">E-mail</Label>
+                  <Label htmlFor="su-email" className="text-slate-700 font-medium">
+                    E-mail
+                  </Label>
                   <Input
                     id="su-email"
                     type="email"
@@ -161,10 +226,13 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="seu@email.com"
+                    className="border-amber-100 focus:border-amber-400 focus:ring-amber-400/20"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="su-pass">Senha</Label>
+                  <Label htmlFor="su-pass" className="text-slate-700 font-medium">
+                    Senha
+                  </Label>
                   <Input
                     id="su-pass"
                     type="password"
@@ -172,17 +240,18 @@ export default function Login() {
                     value={password}
                     onChange={(e) => handlePasswordChange(e.target.value)}
                     placeholder="Mínimo 8 caracteres"
+                    className="border-amber-100 focus:border-amber-400 focus:ring-amber-400/20"
                   />
                   {password.length > 0 && (
                     <div className="space-y-1 mt-2">
                       {pwValidation.checks.map((check) => (
                         <div key={check.label} className="flex items-center gap-1.5 text-xs">
                           {check.passed ? (
-                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                            <CheckCircle2 className="w-3 h-3 text-amber-500" />
                           ) : (
                             <XCircle className="w-3 h-3 text-slate-300" />
                           )}
-                          <span className={check.passed ? 'text-emerald-600' : 'text-slate-400'}>
+                          <span className={check.passed ? 'text-amber-700' : 'text-slate-400'}>
                             {check.label}
                           </span>
                         </div>
@@ -190,10 +259,9 @@ export default function Login() {
                     </div>
                   )}
                 </div>
-                {error && <p className="text-sm text-rose-600">{error}</p>}
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full bg-gradient-to-r from-[#C5A028] to-[#D4AF37] hover:from-[#B8941F] hover:to-[#C5A028] text-white shadow-lg shadow-amber-500/20"
                   size="lg"
                   disabled={password.length > 0 && !pwValidation.valid}
                 >
