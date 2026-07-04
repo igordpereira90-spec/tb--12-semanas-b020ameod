@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+import logoUrl from '@/assets/medpsi-receituario-igor-cabecalho-2952f.jpg'
 
 export default function Layout() {
   const { user, role, signOut } = useAuth()
@@ -35,12 +36,20 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex bg-slate-50">
-      <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 bg-white glass-panel rounded-none">
+      <aside className="hidden md:flex flex-col w-64 border-r border-primary/10 bg-white shadow-sm rounded-none">
         <div className="p-6">
-          <h1 className="text-xl font-bold text-slate-800 leading-tight">
-            Programa <br />
-            <span className="text-primary">Transtorno Bipolar</span>
-          </h1>
+          {role === 'professional' ? (
+            <img
+              src={logoUrl}
+              alt="Dr. Igor Dourado Pereira"
+              className="w-full object-contain mix-blend-multiply"
+            />
+          ) : (
+            <h1 className="text-xl font-bold text-slate-800 leading-tight">
+              Programa <br />
+              <span className="text-primary">Transtorno Bipolar</span>
+            </h1>
+          )}
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-4">
           {navItems.map((item) => {
@@ -57,8 +66,8 @@ export default function Layout() {
                 className={cn(
                   'flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200',
                   isActive
-                    ? 'bg-primary text-white shadow-md shadow-primary/20'
-                    : 'text-slate-600 hover:bg-slate-100',
+                    ? 'bg-gradient-to-r from-primary to-[#b4944a] text-white shadow-md shadow-primary/20'
+                    : 'text-slate-600 hover:bg-primary/5 hover:text-primary',
                 )}
               >
                 <Icon className="w-5 h-5" />
@@ -94,10 +103,18 @@ export default function Layout() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col min-w-0 pb-20 md:pb-0">
-        <header className="h-16 flex items-center justify-between px-4 md:px-8 bg-white/50 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20">
+      <main className="flex-1 flex flex-col min-w-0 pb-20 md:pb-0 bg-slate-50/50">
+        <header className="h-16 flex items-center justify-between px-4 md:px-8 bg-white/80 backdrop-blur-md border-b border-primary/10 sticky top-0 z-20 shadow-sm">
           <div className="md:hidden">
-            <h2 className="font-bold text-slate-800 truncate">TB 12 Semanas</h2>
+            {role === 'professional' ? (
+              <img
+                src={logoUrl}
+                alt="Dr. Igor"
+                className="h-10 object-contain mix-blend-multiply"
+              />
+            ) : (
+              <h2 className="font-bold text-slate-800 truncate">TB 12 Semanas</h2>
+            )}
           </div>
           <div className="hidden md:flex items-center text-sm font-medium text-slate-500">
             {role === 'patient' ? 'Área do Paciente' : 'Área do Profissional'}

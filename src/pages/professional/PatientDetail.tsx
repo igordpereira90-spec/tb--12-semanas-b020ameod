@@ -135,14 +135,17 @@ export default function PatientDetail() {
       )}
 
       <div className="grid md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2 p-6">
-          <h2 className="text-lg font-semibold mb-6 flex items-center">
+        <Card className="md:col-span-2 p-6 border-primary/10 shadow-sm">
+          <h2 className="text-lg font-semibold mb-6 flex items-center text-slate-800">
             <TrendingUp className="w-5 h-5 mr-2 text-primary" /> Evolução Clínica (Scores 0-10)
           </h2>
           <PatientChart questionnaires={sorted} />
         </Card>
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4 text-slate-800">Comparativo S0 vs Atual</h2>
+        <Card className="p-6 border-primary/10 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
+            <span className="w-1.5 h-5 bg-primary rounded-full inline-block"></span>
+            Comparativo S0 vs Atual
+          </h2>
           <div className="space-y-3">
             {metrics.map((m) => (
               <div
@@ -171,33 +174,35 @@ export default function PatientDetail() {
         </Card>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 border-primary/10 shadow-sm">
         <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
-          <Table2 className="w-5 h-5 mr-2 text-primary" /> Comparativo Longitudinal (Semanas 0, 2,
-          4, 8, 10)
+          <Table2 className="w-5 h-5 mr-2 text-primary" /> Comparativo Longitudinal
         </h2>
         <LongitudinalTable questionnaires={sorted} />
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-6 border-primary/10 shadow-sm">
         <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
           <History className="w-5 h-5 mr-2 text-primary" /> Histórico de Questionários
         </h2>
         <QuestionnaireHistory questionnaires={sorted} onEdit={(q) => setEditingQ(q)} />
       </Card>
 
-      <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
+      <Card className="p-6 border-primary/10 shadow-sm bg-primary/5">
+        <h2 className="text-lg font-semibold mb-2 flex items-center text-slate-800">
           <Lock className="w-5 h-5 mr-2 text-primary" /> Gestão de Acesso
         </h2>
-        <p className="text-sm text-slate-500 mb-4">
-          Libere manualmente semanas para este paciente, independente do progresso atual.
+        <p className="text-sm text-slate-600 mb-6">
+          Libere manualmente semanas para este paciente.
         </p>
         <AccessManagement patientId={patient.id} />
       </Card>
 
-      <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4 text-slate-800">Notas Profissionais (Privado)</h2>
+      <Card className="p-6 border-primary/10 shadow-sm">
+        <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
+          <span className="w-1.5 h-5 bg-primary rounded-full inline-block"></span>
+          Notas Profissionais (Privado)
+        </h2>
         <Textarea
           placeholder="Registre aqui suas observações clínicas..."
           className="min-h-[150px] mb-4 bg-slate-50/50"
@@ -209,7 +214,7 @@ export default function PatientDetail() {
             onClick={() =>
               toast({ title: 'Notas salvas', description: 'Observações atualizadas.' })
             }
-            className="bg-slate-800 hover:bg-slate-900"
+            className="bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20"
           >
             <Save className="w-4 h-4 mr-2" /> Salvar Notas
           </Button>

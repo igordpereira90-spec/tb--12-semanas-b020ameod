@@ -46,14 +46,14 @@ export function LongitudinalTable({ questionnaires }: Props) {
     <div className="overflow-x-auto rounded-lg border border-slate-100">
       <table className="w-full text-sm min-w-[600px]">
         <thead>
-          <tr className="bg-slate-50 border-b border-slate-200">
-            <th className="text-left py-3 px-3 font-semibold text-slate-600 sticky left-0 bg-slate-50 z-10">
+          <tr className="bg-primary/5 border-b border-primary/10">
+            <th className="text-left py-3 px-3 font-semibold text-primary sticky left-0 bg-white z-10 shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
               Métrica
             </th>
             {weekData.map((w) => (
               <th
                 key={w.week}
-                className="text-center py-3 px-3 font-semibold text-slate-600 min-w-[90px]"
+                className="text-center py-3 px-3 font-semibold text-primary min-w-[90px]"
               >
                 Semana {w.week}
               </th>
@@ -62,8 +62,13 @@ export function LongitudinalTable({ questionnaires }: Props) {
         </thead>
         <tbody>
           {allRows.map((row, idx) => (
-            <tr key={row.key} className={idx < SCORE_ROWS.length ? 'bg-primary/5' : ''}>
-              <td className="py-2.5 px-3 font-medium text-slate-700 sticky left-0 bg-inherit z-10 border-b border-slate-50">
+            <tr
+              key={row.key}
+              className={
+                idx < SCORE_ROWS.length ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-slate-50'
+              }
+            >
+              <td className="py-2.5 px-3 font-medium text-slate-700 sticky left-0 bg-white z-10 border-b border-slate-100 shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
                 {row.label}
               </td>
               {weekData.map((w) => {

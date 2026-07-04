@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T13:39:47.601Z",
+  "generatedAt": "2026-07-04T14:02:48.519Z",
   "collections": [
     {
       "name": "users",
@@ -344,6 +344,48 @@
       ],
       "indexes": [
         "CREATE UNIQUE INDEX idx_patient_unlocks_patient_week ON patient_unlocks (patient, week_number)"
+      ]
+    },
+    {
+      "name": "questionnaire_configs",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.role = 'professional'",
+        "update": "@request.auth.role = 'professional'",
+        "delete": "@request.auth.role = 'professional'"
+      },
+      "fields": [
+        {
+          "name": "week_number",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "configs",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_questionnaire_configs_week ON questionnaire_configs (week_number)"
       ]
     }
   ]

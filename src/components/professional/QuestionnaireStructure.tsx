@@ -10,12 +10,12 @@ import { SLIDER_FIELDS, FREQUENCY_FIELDS } from '@/lib/questionnaire-config'
 export function QuestionnaireStructure() {
   return (
     <Accordion type="single" collapsible>
-      <AccordionItem value="structure" className="border-slate-200">
-        <AccordionTrigger className="text-lg font-bold text-slate-800">
+      <AccordionItem value="structure" className="border-primary/20">
+        <AccordionTrigger className="text-lg font-bold text-slate-800 hover:text-primary">
           Estrutura do Questionário
         </AccordionTrigger>
         <AccordionContent>
-          <Card className="p-6 md:p-8">
+          <Card className="p-6 md:p-8 border-primary/10 shadow-sm">
             <div className="space-y-8">
               <div>
                 <h2 className="text-base font-bold text-slate-800 border-b pb-2 mb-4">
@@ -25,9 +25,9 @@ export function QuestionnaireStructure() {
                   {SLIDER_FIELDS.map((f) => (
                     <li
                       key={f.name}
-                      className="flex flex-col bg-slate-50 p-3 rounded-lg border border-slate-100"
+                      className="flex flex-col bg-white p-3 rounded-lg border border-slate-200 shadow-sm"
                     >
-                      <span className="font-semibold text-slate-700">{f.label}</span>
+                      <span className="font-semibold text-primary">{f.label}</span>
                       <span className="text-sm text-slate-500">{f.hint}</span>
                     </li>
                   ))}
@@ -41,9 +41,9 @@ export function QuestionnaireStructure() {
                   {FREQUENCY_FIELDS.map((f) => (
                     <li
                       key={f.name}
-                      className="flex flex-col bg-slate-50 p-3 rounded-lg border border-slate-100"
+                      className="flex flex-col bg-white p-3 rounded-lg border border-slate-200 shadow-sm"
                     >
-                      <span className="font-semibold text-slate-700">{f.label}</span>
+                      <span className="font-semibold text-primary">{f.label}</span>
                       <span className="text-sm text-slate-500">
                         Opções: Nunca, Só um pouco, Bastante, Demais
                       </span>

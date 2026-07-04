@@ -69,18 +69,18 @@ export default function ProDashboard() {
   const statusBadge = (status: string) => {
     if (status === 'attention')
       return (
-        <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-200 border-none">
+        <Badge className="bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 shadow-sm">
           <AlertCircle className="w-3 h-3 mr-1" /> Atenção
         </Badge>
       )
     if (status === 'pending')
       return (
-        <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-200 border-none">
+        <Badge className="bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 shadow-sm">
           <Clock className="w-3 h-3 mr-1" /> Pendente
         </Badge>
       )
     return (
-      <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-none">
+      <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 shadow-sm">
         <CheckCircle2 className="w-3 h-3 mr-1" /> Em dia
       </Badge>
     )
@@ -96,31 +96,35 @@ export default function ProDashboard() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-white border-l-4 border-l-primary">
-          <p className="text-sm text-slate-500 font-medium">Total Ativos</p>
-          <p className="text-2xl font-bold text-slate-800">{patients.length}</p>
+        <Card className="p-4 bg-white border border-primary/20 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+          <p className="text-sm text-slate-500 font-medium ml-2">Total Ativos</p>
+          <p className="text-2xl font-bold text-slate-800 ml-2">{patients.length}</p>
         </Card>
-        <Card className="p-4 bg-white border-l-4 border-l-rose-500">
-          <p className="text-sm text-slate-500 font-medium">Em Atenção</p>
-          <p className="text-2xl font-bold text-slate-800">
+        <Card className="p-4 bg-white border border-rose-200 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-rose-500" />
+          <p className="text-sm text-slate-500 font-medium ml-2">Em Atenção</p>
+          <p className="text-2xl font-bold text-slate-800 ml-2">
             {patients.filter((p) => getPatientStatus(getPatientQs(p.id)) === 'attention').length}
           </p>
         </Card>
-        <Card className="p-4 bg-white border-l-4 border-l-amber-500">
-          <p className="text-sm text-slate-500 font-medium">Pendentes</p>
-          <p className="text-2xl font-bold text-slate-800">
+        <Card className="p-4 bg-white border border-amber-200 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
+          <p className="text-sm text-slate-500 font-medium ml-2">Pendentes</p>
+          <p className="text-2xl font-bold text-slate-800 ml-2">
             {patients.filter((p) => getPatientStatus(getPatientQs(p.id)) === 'pending').length}
           </p>
         </Card>
-        <Card className="p-4 bg-white border-l-4 border-l-emerald-500">
-          <p className="text-sm text-slate-500 font-medium">Em Dia</p>
-          <p className="text-2xl font-bold text-slate-800">
+        <Card className="p-4 bg-white border border-emerald-200 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500" />
+          <p className="text-sm text-slate-500 font-medium ml-2">Em Dia</p>
+          <p className="text-2xl font-bold text-slate-800 ml-2">
             {patients.filter((p) => getPatientStatus(getPatientQs(p.id)) === 'ok').length}
           </p>
         </Card>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 border border-primary/10 shadow-sm">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -147,12 +151,12 @@ export default function ProDashboard() {
         <div className="rounded-md border">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50">
-                <TableHead>Paciente</TableHead>
-                <TableHead>Semana Atual</TableHead>
-                <TableHead>Questionários</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ação</TableHead>
+              <TableRow className="bg-primary/5 hover:bg-primary/5 border-primary/10">
+                <TableHead className="text-primary font-semibold">Paciente</TableHead>
+                <TableHead className="text-primary font-semibold">Semana Atual</TableHead>
+                <TableHead className="text-primary font-semibold">Questionários</TableHead>
+                <TableHead className="text-primary font-semibold">Status</TableHead>
+                <TableHead className="text-right text-primary font-semibold">Ação</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

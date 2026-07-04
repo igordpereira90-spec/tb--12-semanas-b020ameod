@@ -51,13 +51,15 @@ export default function ProQuestionnaireSettings() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Gestão de Conteúdo do Programa</h1>
+          <h1 className="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+            <span className="w-2 h-6 bg-primary rounded-full inline-block"></span>
+            Gestão de Conteúdo
+          </h1>
           <p className="text-slate-600">
-            Gerencie o material educativo de cada semana do programa de 12 semanas para o Transtorno
-            Bipolar.
+            Gerencie o material educativo de cada semana do programa de 12 semanas.
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-white rounded-xl border border-slate-200 px-4 py-3">
+        <div className="flex items-center gap-3 bg-white rounded-xl border border-primary/20 shadow-sm px-4 py-3">
           <div className="text-center">
             <p className="text-2xl font-bold text-primary">{configuredCount}</p>
             <p className="text-xs text-slate-500">Configuradas</p>
@@ -79,11 +81,11 @@ export default function ProQuestionnaireSettings() {
           return (
             <Card
               key={week}
-              className="p-5 hover:shadow-md transition-shadow duration-200 border-slate-200 flex flex-col"
+              className="p-5 hover:shadow-md transition-shadow duration-200 border-primary/10 shadow-sm flex flex-col"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <div className="w-11 h-11 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-center">
                     <BookOpen className="w-5 h-5 text-primary" />
                   </div>
                   <div>

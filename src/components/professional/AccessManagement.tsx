@@ -71,26 +71,26 @@ export function AccessManagement({ patientId }: Props) {
         return (
           <div
             key={week}
-            className={`flex flex-col gap-2 p-3 rounded-lg border transition-colors ${
-              isUnlocked ? 'border-emerald-200 bg-emerald-50' : 'border-slate-200 bg-slate-50'
+            className={`flex flex-col gap-2 p-3 rounded-lg border transition-colors bg-white shadow-sm ${
+              isUnlocked ? 'border-primary/40 shadow-primary/10' : 'border-slate-200'
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 {isUnlocked ? (
-                  <Unlock className="w-4 h-4 text-emerald-600" />
+                  <Unlock className="w-4 h-4 text-primary" />
                 ) : (
                   <Lock className="w-4 h-4 text-slate-400" />
                 )}
                 <span className="text-sm font-medium text-slate-700">Semana {week}</span>
               </div>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mt-1">
               <Badge
                 className={
                   isUnlocked
-                    ? 'bg-emerald-100 text-emerald-700 border-none text-xs'
-                    : 'bg-slate-200 text-slate-500 border-none text-xs'
+                    ? 'bg-primary/10 text-primary border-none text-[10px] font-semibold'
+                    : 'bg-slate-100 text-slate-500 border-none text-[10px] font-medium'
                 }
               >
                 {isUnlocked ? 'Liberado' : 'Bloqueado'}
@@ -100,7 +100,11 @@ export function AccessManagement({ patientId }: Props) {
                 variant={isUnlocked ? 'outline' : 'default'}
                 disabled={toggling === week}
                 onClick={() => handleToggle(week)}
-                className="h-7 px-3 text-xs"
+                className={
+                  isUnlocked
+                    ? 'h-7 px-3 text-xs border-primary/20 text-primary hover:bg-primary/5'
+                    : 'h-7 px-3 text-xs bg-slate-800 text-white hover:bg-slate-700'
+                }
               >
                 {toggling === week ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
