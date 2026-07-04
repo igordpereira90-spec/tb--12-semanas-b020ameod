@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
+import { useUnlocks } from '@/hooks/use-unlocks'
 import { getEducationalMaterials } from '@/services/educational_materials'
 import type { EducationalMaterial } from '@/services/educational_materials'
 import { getQuestionnaires } from '@/services/questionnaires'
@@ -12,6 +13,7 @@ export default function PatientLibrary() {
   const [materials, setMaterials] = useState<EducationalMaterial[]>([])
   const [programWeek, setProgramWeek] = useState(0)
   const [reading, setReading] = useState<EducationalMaterial | null>(null)
+  const { unlockedWeeks } = useUnlocks(user?.id)
 
   useEffect(() => {
     async function load() {
@@ -30,7 +32,9 @@ export default function PatientLibrary() {
     load()
   }, [user?.id])
 
-  const visibleMaterials = materials.filter((m) => m.week_number <= programWeek)
+  const visibleMaterials = materials.filter(
+    (m) => m.week_number <= programWeek || unlockedWeeks.includes(m.week_number),
+  )
 
   return (
     <div className="space-y-6 animate-fade-in">

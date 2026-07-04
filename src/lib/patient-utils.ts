@@ -91,3 +91,28 @@ export function generateSummary(questionnaires: Questionnaire[]): string {
   if (hasAlert) parts.push(`alertas: ${reasons.join(', ')}`)
   return `Paciente apresentou ${parts.join(', ')}.`
 }
+
+export function isQuestionnaireAccessible(
+  week: number,
+  completedWeeks: number[],
+  unlockedWeeks: number[],
+  questionnaireWeeks: number[],
+  allWeeks: number[],
+): boolean {
+  if (week === 0) return true
+  if (unlockedWeeks.includes(week)) return true
+  if (!questionnaireWeeks.includes(week)) return false
+  const prevWeeks = allWeeks.filter((w) => w < week)
+  return prevWeeks.every((w) =>
+    questionnaireWeeks.includes(w) ? completedWeeks.includes(w) : true,
+  )
+}
+
+export function isMaterialAccessible(
+  week: number,
+  programWeek: number,
+  unlockedWeeks: number[],
+): boolean {
+  if (unlockedWeeks.includes(week)) return true
+  return week <= programWeek
+}

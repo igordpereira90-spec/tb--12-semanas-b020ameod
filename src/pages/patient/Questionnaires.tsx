@@ -2,13 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
+import { useUnlocks } from '@/hooks/use-unlocks'
 import { getQuestionnaires } from '@/services/questionnaires'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle2, Lock, Clock, Loader2, Stethoscope } from 'lucide-react'
+import { CheckCircle2, Lock, Clock, Loader2, Stethoscope, Unlock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { QUESTIONNAIRE_WEEKS, CONSULTATION_WEEKS, ALL_WEEKS } from '@/lib/questionnaire-config'
+import { isQuestionnaireAccessible } from '@/lib/patient-utils'
 import type { Questionnaire } from '@/services/questionnaires'
 
 export default function PatientQuestionnaires() {
@@ -16,6 +18,7 @@ export default function PatientQuestionnaires() {
   const navigate = useNavigate()
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [loading, setLoading] = useState(true)
+  const { unlockedWeeks } = useUnlocks(user?.id)
 
   const loadData = useCallback(async () => {
     if (!user?.id) return
@@ -45,7 +48,6 @@ export default function PatientQuestionnaires() {
   }
 
   const completedWeeks = questionnaires.map((q) => q.week_number)
-  const nextPending = QUESTIONNAIRE_WEEKS.find((w) => !completedWeeks.includes(w))
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -60,8 +62,18 @@ export default function PatientQuestionnaires() {
         {ALL_WEEKS.map((week) => {
           const isC = CONSULTATION_WEEKS.includes(week)
           const isDone = completedWeeks.includes(week)
-          const isPending = !isDone && week === nextPending && QUESTIONNAIRE_WEEKS.includes(week)
-          const isLocked = !isDone && !isPending
+          const isManualUnlock = !isDone && unlockedWeeks.includes(week)
+          const isAvailable =
+            !isDone &&
+            QUESTIONNAIRE_WEEKS.includes(week) &&
+            isQuestionnaireAccessible(
+              week,
+              completedWeeks,
+              unlockedWeeks,
+              QUESTIONNAIRE_WEEKS,
+              ALL_WEEKS,
+            )
+          const isLocked = !isDone && !isAvailable
 
           if (isC) {
             return (
@@ -94,15 +106,21 @@ export default function PatientQuestionnaires() {
                     'w-12 h-12 rounded-full flex items-center justify-center shrink-0',
                     isDone
                       ? 'bg-emerald-100 text-emerald-600'
-                      : isPending
-                        ? 'bg-amber-100 text-amber-600'
+                      : isAvailable
+                        ? isManualUnlock
+                          ? 'bg-indigo-100 text-indigo-600'
+                          : 'bg-amber-100 text-amber-600'
                         : 'bg-slate-100 text-slate-400',
                   )}
                 >
                   {isDone ? (
                     <CheckCircle2 className="w-6 h-6" />
-                  ) : isPending ? (
-                    <Clock className="w-6 h-6 animate-pulse" />
+                  ) : isAvailable ? (
+                    isManualUnlock ? (
+                      <Unlock className="w-5 h-5" />
+                    ) : (
+                      <Clock className="w-6 h-6" />
+                    )
                   ) : (
                     <Lock className="w-5 h-5" />
                   )}
@@ -133,12 +151,17 @@ export default function PatientQuestionnaires() {
                     Concluído
                   </Badge>
                 )}
-                {isPending && (
+                {isAvailable && (
                   <Badge
                     variant="outline"
-                    className="bg-amber-50 text-amber-700 border-amber-200 py-1 animate-pulse"
+                    className={cn(
+                      'py-1',
+                      isManualUnlock
+                        ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                        : 'bg-amber-50 text-amber-700 border-amber-200',
+                    )}
                   >
-                    Pendente
+                    {isManualUnlock ? 'Liberado' : 'Disponível'}
                   </Badge>
                 )}
                 {isLocked && (
@@ -149,7 +172,7 @@ export default function PatientQuestionnaires() {
                     Aguardando
                   </Badge>
                 )}
-                {isPending && (
+                {isAvailable && (
                   <Button
                     onClick={() => navigate(`/patient/questionnaires/${week}`)}
                     className="ml-auto md:ml-4"

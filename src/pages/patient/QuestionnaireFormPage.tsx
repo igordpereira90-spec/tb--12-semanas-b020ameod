@@ -1,10 +1,14 @@
+import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
-import { createQuestionnaire } from '@/services/questionnaires'
+import { useUnlocks } from '@/hooks/use-unlocks'
+import { createQuestionnaire, getQuestionnaires } from '@/services/questionnaires'
 import { QuestionnaireForm } from '@/components/patient/QuestionnaireForm'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ClipboardList } from 'lucide-react'
+import { ArrowLeft, ClipboardList, Lock, Loader2 } from 'lucide-react'
+import { isQuestionnaireAccessible } from '@/lib/patient-utils'
+import { QUESTIONNAIRE_WEEKS, ALL_WEEKS } from '@/lib/questionnaire-config'
 import type { Questionnaire } from '@/services/questionnaires'
 
 export default function QuestionnaireFormPage() {
@@ -12,7 +16,21 @@ export default function QuestionnaireFormPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { unlockedWeeks, loading: unlocksLoading } = useUnlocks(user?.id)
+  const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
+  const [loadingQs, setLoadingQs] = useState(true)
   const weekNumber = Number(week) || 0
+
+  useEffect(() => {
+    if (!user?.id) {
+      setLoadingQs(false)
+      return
+    }
+    getQuestionnaires(user.id)
+      .then((qs) => setQuestionnaires(qs))
+      .catch(() => {})
+      .finally(() => setLoadingQs(false))
+  }, [user?.id])
 
   const handleSubmit = async (data: Record<string, unknown>) => {
     if (!user?.id) return
@@ -23,6 +41,41 @@ export default function QuestionnaireFormPage() {
     } catch {
       toast({ title: 'Erro', description: 'Não foi possível salvar o questionário.' })
     }
+  }
+
+  const completedWeeks = questionnaires.map((q) => q.week_number)
+  const hasAccess = isQuestionnaireAccessible(
+    weekNumber,
+    completedWeeks,
+    unlockedWeeks,
+    QUESTIONNAIRE_WEEKS,
+    ALL_WEEKS,
+  )
+
+  if (unlocksLoading || loadingQs) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4 animate-fade-in max-w-md mx-auto text-center">
+        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+          <Lock className="w-8 h-8 text-slate-400" />
+        </div>
+        <h2 className="text-xl font-semibold text-slate-700">Conteúdo Bloqueado</h2>
+        <p className="text-slate-500">
+          Você ainda não tem acesso ao questionário da Semana {weekNumber}. Aguarde a liberação do
+          seu profissional ou complete as semanas anteriores.
+        </p>
+        <Button variant="outline" onClick={() => navigate('/patient')}>
+          Voltar para o início
+        </Button>
+      </div>
+    )
   }
 
   return (

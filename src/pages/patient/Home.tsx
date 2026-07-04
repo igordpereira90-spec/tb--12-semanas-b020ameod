@@ -6,9 +6,10 @@ import { getQuestionnaires } from '@/services/questionnaires'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Sparkles, Loader2 } from 'lucide-react'
+import { ArrowRight, Sparkles, Loader2, Unlock } from 'lucide-react'
 import { Timeline } from '@/components/patient/Timeline'
 import { MedalCase } from '@/components/patient/MedalCase'
+import { useUnlocks } from '@/hooks/use-unlocks'
 import { calculateMedals, getCurrentWeek, getProgress } from '@/lib/patient-utils'
 import type { Questionnaire } from '@/services/questionnaires'
 
@@ -17,6 +18,7 @@ export default function PatientHome() {
   const navigate = useNavigate()
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [loading, setLoading] = useState(true)
+  const { unlockedWeeks } = useUnlocks(user?.id)
 
   const loadData = useCallback(async () => {
     if (!user?.id) return
@@ -81,11 +83,23 @@ export default function PatientHome() {
           </span>
         </div>
         <Card className="p-2 md:p-6 shadow-sm border-slate-100">
-          <Timeline completedWeeks={completedWeeks} />
+          <Timeline completedWeeks={completedWeeks} unlockedWeeks={unlockedWeeks} />
           <div className="mt-8 px-4 pb-4">
             <Progress value={progress} className="h-3 bg-slate-100" />
           </div>
         </Card>
+        {unlockedWeeks.length > 0 && (
+          <Card className="p-4 bg-indigo-50/50 border-indigo-100 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+              <Unlock className="w-4 h-4" />
+            </div>
+            <p className="text-sm text-indigo-700">
+              Seu profissional liberou {unlockedWeeks.length}{' '}
+              {unlockedWeeks.length > 1 ? 'semanas adicionais' : 'semana adicional'} para acesso
+              antecipado.
+            </p>
+          </Card>
+        )}
       </section>
 
       <section className="space-y-4">
