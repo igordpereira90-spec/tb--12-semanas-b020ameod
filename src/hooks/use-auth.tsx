@@ -9,7 +9,6 @@ interface AuthContextType {
   role: Role | null
   signUp: (email: string, password: string, name: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
-  signInWith: (provider: string) => Promise<{ error: any }>
   signOut: () => void
   acceptConsent: () => Promise<void>
   loading: boolean
@@ -75,33 +74,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const signInWith = async (provider: string) => {
-    try {
-      await pb.collection('users').authWithOAuth2({
-        provider,
-        createData: {
-          role: 'patient',
-          points: 0,
-          badges: { earnedBadges: [], readMaterials: [] },
-          consent_accepted: false,
-        },
-        upsertData: {
-          verified: true,
-        },
-      })
-      return { error: null }
-    } catch (error: any) {
-      if (
-        error?.isAbort ||
-        error?.message?.toLowerCase().includes('cancelled') ||
-        error?.message?.toLowerCase().includes('popup')
-      ) {
-        return { error: { __cancelled: true, message: 'Login cancelado.' } }
-      }
-      return { error }
-    }
-  }
-
   const signOut = () => {
     pb.authStore.clear()
   }
@@ -123,7 +95,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         role: user?.role ?? null,
         signUp,
         signIn,
-        signInWith,
         signOut,
         acceptConsent,
         loading,
