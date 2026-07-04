@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-07-04T11:24:21.928Z",
+  "generatedAt": "2026-07-04T11:37:19.649Z",
   "collections": [
     {
       "name": "users",
       "type": "auth",
       "apiRules": {
-        "list": "id = @request.auth.id",
-        "view": "id = @request.auth.id",
+        "list": "@request.auth.id != '' && (id = @request.auth.id || @request.auth.role = 'professional')",
+        "view": "@request.auth.id != '' && (id = @request.auth.id || @request.auth.role = 'professional')",
         "create": "",
         "update": "id = @request.auth.id",
         "delete": "id = @request.auth.id"
@@ -37,11 +37,202 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "role",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["patient", "professional"]
         }
       ],
       "indexes": [
         "CREATE UNIQUE INDEX `idx_tokenKey__pb_users_auth_` ON `users` (`tokenKey`)",
         "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
+      ]
+    },
+    {
+      "name": "questionnaires",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && (patient = @request.auth.id || @request.auth.role = 'professional')",
+        "view": "@request.auth.id != '' && (patient = @request.auth.id || @request.auth.role = 'professional')",
+        "create": "@request.auth.id != '' && patient = @request.auth.id",
+        "update": "@request.auth.id != '' && patient = @request.auth.id",
+        "delete": "@request.auth.id != '' && patient = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "patient",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "week_number",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "overall_feeling",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "improvement_areas",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Humor", "Energia", "Sono", "Ansiedade", "Outro"]
+        },
+        {
+          "name": "mood_score",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "energy_score",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sleep_score",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "anxiety_freq",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "insomnia_freq",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "daytime_sleepiness",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "talkativeness",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "racing_thoughts",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "increased_goal_activity",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "risky_behavior",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "euphoria",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "depressed_mood",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "loss_of_interest",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "concentration_change",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "physical_activity",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
+        },
+        {
+          "name": "appetite_weight_change",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Sem alteração", "Aumento", "Diminuição"]
+        },
+        {
+          "name": "functional_impairment",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["Sem prejuízo", "Social", "Profissional"]
+        },
+        {
+          "name": "specific_evolution",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "future_expectations",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_questionnaires_patient_week ON questionnaires (patient, week_number)"
       ]
     }
   ]

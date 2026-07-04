@@ -19,7 +19,7 @@ migrate(
           cascadeDelete: true,
           maxSelect: 1,
         },
-        { name: 'week_number', type: 'number', required: true, onlyInt: true },
+        { name: 'week_number', type: 'number', onlyInt: true },
         { name: 'overall_feeling', type: 'number', min: 0, max: 10, onlyInt: true },
         {
           name: 'improvement_areas',
