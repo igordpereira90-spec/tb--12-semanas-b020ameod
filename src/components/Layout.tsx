@@ -7,6 +7,7 @@ import {
   Bell,
   LogOut,
   Home,
+  ShieldCheck,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,7 @@ export default function Layout() {
     { path: '/pro', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/pro/questionnaire-settings', label: 'Questionário', icon: ClipboardList },
     { path: '/pro/materials', label: 'Material Educativo', icon: BookOpen },
+    { path: '/pro/audit', label: 'Auditoria', icon: ShieldCheck },
   ]
   const navItems = role === 'professional' ? proNav : patientNav
 

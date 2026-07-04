@@ -10,6 +10,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, name: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => void
+  acceptConsent: () => Promise<void>
   loading: boolean
 }
 
@@ -55,6 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name,
         points: 0,
         badges: { earnedBadges: [], readMaterials: [] },
+        consent_accepted: false,
       })
       await pb.collection('users').authWithPassword(email, password)
       return { error: null }
@@ -76,9 +78,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     pb.authStore.clear()
   }
 
+  const acceptConsent = async () => {
+    if (!user?.id) return
+    try {
+      await pb.collection('users').update(user.id, {
+        consent_accepted: true,
+        consent_date: new Date().toISOString(),
+      })
+      await pb.collection('users').authRefresh()
+    } catch (err) {
+      throw err
+    }
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, role: user?.role ?? null, signUp, signIn, signOut, loading }}
+      value={{
+        user,
+        isAuthenticated,
+        role: user?.role ?? null,
+        signUp,
+        signIn,
+        signOut,
+        acceptConsent,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>

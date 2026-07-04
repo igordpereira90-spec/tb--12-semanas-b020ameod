@@ -1,21 +1,27 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
-import { Brain, ArrowRight } from 'lucide-react'
+import { validatePassword } from '@/lib/password-validation'
+import { logAction } from '@/services/audit_logs'
+import { Brain, ArrowRight, CheckCircle2, XCircle, ShieldAlert } from 'lucide-react'
 
 export default function Login() {
   const { signIn, signUp } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const sessionExpired = searchParams.get('expired') === 'true'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [error, setError] = useState('')
+  const [pwValidation, setPwValidation] = useState(validatePassword(''))
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,18 +31,29 @@ export default function Login() {
       setError(getErrorMessage(error))
       return
     }
+    logAction('LOGIN').catch(() => {})
     navigate('/', { replace: true })
   }
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    if (!pwValidation.valid) {
+      setError('A senha não atende aos requisitos de complexidade.')
+      return
+    }
     const { error } = await signUp(email, password, name || undefined)
     if (error) {
       setError(getErrorMessage(error))
       return
     }
+    logAction('LOGIN').catch(() => {})
     navigate('/', { replace: true })
+  }
+
+  const handlePasswordChange = (val: string) => {
+    setPassword(val)
+    setPwValidation(validatePassword(val))
   }
 
   return (
@@ -74,6 +91,16 @@ export default function Login() {
             <Brain className="w-6 h-6 text-primary" />
             <span className="font-bold text-slate-800">TB 12 Semanas</span>
           </div>
+
+          {sessionExpired && (
+            <Alert className="mb-4 bg-amber-50 border-amber-200 text-amber-900">
+              <ShieldAlert className="h-4 w-4 !text-amber-600" />
+              <AlertDescription className="text-amber-700 text-sm">
+                Sua sessão expirou por inatividade. Faça login novamente para continuar.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Tabs defaultValue="login">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="login">Entrar</TabsTrigger>
@@ -141,12 +168,33 @@ export default function Login() {
                     type="password"
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
                     placeholder="Mínimo 8 caracteres"
                   />
+                  {password.length > 0 && (
+                    <div className="space-y-1 mt-2">
+                      {pwValidation.checks.map((check) => (
+                        <div key={check.label} className="flex items-center gap-1.5 text-xs">
+                          {check.passed ? (
+                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                          ) : (
+                            <XCircle className="w-3 h-3 text-slate-300" />
+                          )}
+                          <span className={check.passed ? 'text-emerald-600' : 'text-slate-400'}>
+                            {check.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {error && <p className="text-sm text-rose-600">{error}</p>}
-                <Button type="submit" className="w-full" size="lg">
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={password.length > 0 && !pwValidation.valid}
+                >
                   Criar Conta
                 </Button>
               </form>

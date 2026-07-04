@@ -21,6 +21,7 @@ import {
   TEXTAREA_FIELDS,
 } from '@/lib/questionnaire-config'
 import { useToast } from '@/hooks/use-toast'
+import { logAction } from '@/services/audit_logs'
 import { Loader2, Save } from 'lucide-react'
 
 interface FieldConfig {
@@ -85,6 +86,7 @@ export function QuestionnaireConfigEditDialog({
     setSaving(true)
     try {
       await upsertQuestionnaireConfig(weekNumber, configs as Record<string, unknown>)
+      logAction('UPDATE_QUESTIONNAIRE_CONFIG', String(weekNumber)).catch(() => {})
       toast({ title: 'Sucesso', description: 'Configuração do questionário salva com sucesso.' })
       onOpenChange(false)
       onSaved()

@@ -8,6 +8,8 @@ export interface AppUser {
   role: 'patient' | 'professional'
   points: number
   badges: unknown
+  consent_accepted: boolean
+  consent_date: string | null
   created: string
   updated: string
 }

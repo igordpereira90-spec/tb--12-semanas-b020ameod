@@ -27,6 +27,7 @@ import { QuestionnaireEditDialog } from '@/components/professional/Questionnaire
 import { useToast } from '@/hooks/use-toast'
 import { getAlerts, generateSummary, getCurrentWeek } from '@/lib/patient-utils'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
+import { logAction } from '@/services/audit_logs'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
 
@@ -61,6 +62,10 @@ export default function PatientDetail() {
   useRealtime('questionnaires', () => {
     loadData()
   })
+
+  useEffect(() => {
+    if (id) logAction('ACCESS_PATIENT_DATA', id).catch(() => {})
+  }, [id])
 
   const handleEditSubmit = async (data: Record<string, unknown>) => {
     if (!editingQ) return
