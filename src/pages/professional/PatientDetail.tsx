@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { PatientChart } from '@/components/professional/PatientChart'
 import { LongitudinalTable } from '@/components/professional/LongitudinalTable'
+import { QualitativeTimeline } from '@/components/professional/QualitativeTimeline'
 import { QuestionnaireHistory } from '@/components/professional/QuestionnaireHistory'
 import { QuestionnaireEditDialog } from '@/components/professional/QuestionnaireEditDialog'
 import { useToast } from '@/hooks/use-toast'
@@ -186,6 +187,14 @@ export default function PatientDetail() {
           <History className="w-5 h-5 mr-2 text-primary" /> Histórico de Questionários
         </h2>
         <QuestionnaireHistory questionnaires={sorted} onEdit={(q) => setEditingQ(q)} />
+      </Card>
+
+      <Card className="p-6 border-primary/10 shadow-sm">
+        <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
+          <span className="w-1.5 h-5 bg-primary rounded-full inline-block mr-2"></span>
+          Evolução Qualitativa por Semana
+        </h2>
+        <QualitativeTimeline questionnaires={sorted} />
       </Card>
 
       <Card className="p-6 border-primary/10 shadow-sm bg-primary/5">
