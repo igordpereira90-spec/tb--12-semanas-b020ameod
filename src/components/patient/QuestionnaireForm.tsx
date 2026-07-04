@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
+import { useToast } from '@/hooks/use-toast'
+import { cn } from '@/lib/utils'
 import { Slider } from '@/components/ui/slider'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
+import { Progress } from '@/components/ui/progress'
+import { Card } from '@/components/ui/card'
 import {
   Select,
   SelectTrigger,
@@ -21,16 +25,24 @@ import {
   APPETITE_OPTIONS,
   IMPAIRMENT_OPTIONS,
 } from '@/lib/questionnaire-config'
-import { Loader2 } from 'lucide-react'
+import { Loader2, AlertCircle } from 'lucide-react'
 
 interface Props {
   week: number
   onSubmit: (data: Record<string, unknown>) => Promise<void>
 }
 
+const REQUIRED_FIELDS = [
+  ...FREQUENCY_FIELDS.map((f) => f.name),
+  'appetite_weight_change',
+  'functional_impairment',
+]
+
 export function QuestionnaireForm({ week, onSubmit }: Props) {
   const { user } = useAuth()
+  const { toast } = useToast()
   const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [form, setForm] = useState<Record<string, any>>({
     overall_feeling: 5,
     mood_score: 5,
@@ -55,13 +67,27 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
     future_expectations: '',
   })
 
-  const update = (field: string, value: any) => setForm((p) => ({ ...p, [field]: value }))
+  const update = (field: string, value: any) => {
+    setForm((p) => ({ ...p, [field]: value }))
+    if (errors[field]) setErrors((p) => ({ ...p, [field]: false }))
+  }
   const toggleArea = (opt: string) => {
     const cur = form.improvement_areas as string[]
     update('improvement_areas', cur.includes(opt) ? cur.filter((a) => a !== opt) : [...cur, opt])
   }
+  const filledRequired = REQUIRED_FIELDS.filter((f) => form[f]).length
+  const progress = Math.round((filledRequired / REQUIRED_FIELDS.length) * 100)
 
   const handleSubmit = async () => {
+    const newErrors: Record<string, boolean> = {}
+    REQUIRED_FIELDS.forEach((f) => {
+      if (!form[f]) newErrors[f] = true
+    })
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) {
+      toast({ title: 'Atenção', description: 'Preencha todos os campos obrigatórios.' })
+      return
+    }
     setSaving(true)
     try {
       await onSubmit({ ...form, week_number: week })
@@ -72,9 +98,11 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
 
   const renderFreqSelect = (fieldName: string, label: string) => (
     <div key={fieldName} className="space-y-1.5">
-      <Label className="text-sm font-medium text-slate-700">{label}</Label>
+      <Label className="text-sm font-medium text-slate-700">
+        {label} <span className="text-red-500">*</span>
+      </Label>
       <Select value={form[fieldName]} onValueChange={(v) => update(fieldName, v)}>
-        <SelectTrigger className="h-10">
+        <SelectTrigger className={cn('h-10', errors[fieldName] && 'border-red-400')}>
           <SelectValue placeholder="Selecione..." />
         </SelectTrigger>
         <SelectContent>
@@ -85,125 +113,116 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
           ))}
         </SelectContent>
       </Select>
+      {errors[fieldName] && (
+        <p className="text-xs text-red-500 flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" /> Obrigatório
+        </p>
+      )}
+    </div>
+  )
+
+  const renderSlider = (f: { name: string; label: string; hint: string }) => (
+    <div key={f.name} className="space-y-2">
+      <div className="flex justify-between items-center">
+        <div>
+          <Label className="text-sm font-medium">{f.label}</Label>
+          <span className="text-xs text-slate-400 block">{f.hint}</span>
+        </div>
+        <span className="text-sm font-bold text-primary">{form[f.name]}/10</span>
+      </div>
+      <Slider
+        value={[form[f.name]]}
+        onValueChange={(v) => update(f.name, v[0])}
+        max={10}
+        step={1}
+      />
+    </div>
+  )
+
+  const renderRequiredSelect = (fieldName: string, label: string, options: readonly string[]) => (
+    <div className="space-y-1.5">
+      <Label className="text-sm font-medium text-slate-700">
+        {label} <span className="text-red-500">*</span>
+      </Label>
+      <Select value={form[fieldName]} onValueChange={(v) => update(fieldName, v)}>
+        <SelectTrigger className={cn('h-10', errors[fieldName] && 'border-red-400')}>
+          <SelectValue placeholder="Selecione..." />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((o) => (
+            <SelectItem key={o} value={o}>
+              {o}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {errors[fieldName] && (
+        <p className="text-xs text-red-500 flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" /> Obrigatório
+        </p>
+      )}
     </div>
   )
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Nome completo</Label>
-        <Input
-          value={user?.name || ''}
-          readOnly
-          placeholder="Nome do paciente"
-          className="bg-slate-50"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <div>
-            <Label className="text-sm font-medium">{SLIDER_FIELDS[0].label}</Label>
-            <span className="text-xs text-slate-400 block">{SLIDER_FIELDS[0].hint}</span>
-          </div>
-          <span className="text-sm font-bold text-primary">{form.overall_feeling}/10</span>
-        </div>
-        <Slider
-          value={[form.overall_feeling]}
-          onValueChange={(v) => update('overall_feeling', v[0])}
-          max={10}
-          step={1}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Em quais áreas você teve melhora essa semana?</Label>
-        <div className="grid grid-cols-2 gap-2">
-          {IMPROVEMENT_OPTIONS.map((opt) => (
-            <div key={opt} className="flex items-center gap-2">
-              <Checkbox
-                checked={form.improvement_areas.includes(opt)}
-                onCheckedChange={() => toggleArea(opt)}
-              />
-              <Label className="text-sm cursor-pointer" onClick={() => toggleArea(opt)}>
-                {opt}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {SLIDER_FIELDS.slice(1).map((f) => (
-          <div key={f.name} className="space-y-2">
-            <div className="flex justify-between items-center">
-              <div>
-                <Label className="text-sm font-medium">{f.label}</Label>
-                <span className="text-xs text-slate-400 block">{f.hint}</span>
-              </div>
-              <span className="text-sm font-bold text-primary">{form[f.name]}/10</span>
-            </div>
-            <Slider
-              value={[form[f.name]]}
-              onValueChange={(v) => update(f.name, v[0])}
-              max={10}
-              step={1}
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="space-y-4 pt-4">
-        {FREQUENCY_FIELDS.slice(0, 10).map((f) => renderFreqSelect(f.name, f.label))}
-      </div>
-
-      <div className="space-y-1.5 pt-4">
-        <Label className="text-sm font-medium text-slate-700">
-          Tem apresentado alteração do apetite ou do peso?
-        </Label>
-        <Select
-          value={form.appetite_weight_change}
-          onValueChange={(v) => update('appetite_weight_change', v)}
-        >
-          <SelectTrigger className="h-10">
-            <SelectValue placeholder="Selecione..." />
-          </SelectTrigger>
-          <SelectContent>
-            {APPETITE_OPTIONS.map((o) => (
-              <SelectItem key={o} value={o}>
-                {o}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {renderFreqSelect('concentration_change', FREQUENCY_FIELDS[10].label)}
-
+    <div className="space-y-6 pb-8">
       <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-slate-700">
-          Tem apresentado prejuízo importante do seu funcionamento?
-        </Label>
-        <Select
-          value={form.functional_impairment}
-          onValueChange={(v) => update('functional_impairment', v)}
-        >
-          <SelectTrigger className="h-10">
-            <SelectValue placeholder="Selecione..." />
-          </SelectTrigger>
-          <SelectContent>
-            {IMPAIRMENT_OPTIONS.map((o) => (
-              <SelectItem key={o} value={o}>
-                {o}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-slate-600">Progresso do formulário</span>
+          <span className="text-sm font-bold text-primary">{progress}%</span>
+        </div>
+        <Progress value={progress} className="h-2" />
       </div>
 
-      {renderFreqSelect('physical_activity', FREQUENCY_FIELDS[11].label)}
+      <Card className="p-5 space-y-2">
+        <Label className="text-sm font-medium">Nome completo</Label>
+        <Input value={user?.name || ''} readOnly className="bg-slate-50" />
+      </Card>
 
-      <div className="space-y-3">
+      <Card className="p-5 space-y-4">
+        {renderSlider(SLIDER_FIELDS[0])}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">
+            Em quais áreas você teve melhora essa semana?
+          </Label>
+          <div className="grid grid-cols-2 gap-2">
+            {IMPROVEMENT_OPTIONS.map((opt) => (
+              <div key={opt} className="flex items-center gap-2">
+                <Checkbox
+                  checked={form.improvement_areas.includes(opt)}
+                  onCheckedChange={() => toggleArea(opt)}
+                />
+                <Label className="text-sm cursor-pointer" onClick={() => toggleArea(opt)}>
+                  {opt}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+        {SLIDER_FIELDS.slice(1).map(renderSlider)}
+      </Card>
+
+      <Card className="p-5 space-y-4">
+        <h3 className="font-semibold text-slate-800">Sintomas e Frequência</h3>
+        {FREQUENCY_FIELDS.map((f) => renderFreqSelect(f.name, f.label))}
+      </Card>
+
+      <Card className="p-5 space-y-4">
+        <h3 className="font-semibold text-slate-800">Apetite e Funcionamento</h3>
+        {renderRequiredSelect(
+          'appetite_weight_change',
+          'Tem apresentado alteração do apetite ou do peso?',
+          APPETITE_OPTIONS,
+        )}
+        {renderRequiredSelect(
+          'functional_impairment',
+          'Tem apresentado prejuízo importante do seu funcionamento?',
+          IMPAIRMENT_OPTIONS,
+        )}
+      </Card>
+
+      <Card className="p-5 space-y-4">
+        <h3 className="font-semibold text-slate-800">Evolução e Expectativas</h3>
         <div className="space-y-1">
           <Label className="text-sm font-medium">
             Qual evolução específica você teve essa semana?
@@ -226,7 +245,7 @@ export function QuestionnaireForm({ week, onSubmit }: Props) {
             className="min-h-[80px]"
           />
         </div>
-      </div>
+      </Card>
 
       <Button onClick={handleSubmit} disabled={saving} className="w-full" size="lg">
         {saving ? (

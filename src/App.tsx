@@ -12,6 +12,7 @@ import Login from './pages/Login'
 
 import PatientHome from './pages/patient/Home'
 import PatientQuestionnaires from './pages/patient/Questionnaires'
+import QuestionnaireFormPage from './pages/patient/QuestionnaireFormPage'
 import PatientLibrary from './pages/patient/Library'
 
 import ProDashboard from './pages/professional/Dashboard'
@@ -38,6 +39,7 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/patient" element={<PatientHome />} />
               <Route path="/patient/questionnaires" element={<PatientQuestionnaires />} />
+              <Route path="/patient/questionnaires/:week" element={<QuestionnaireFormPage />} />
               <Route path="/patient/library" element={<PatientLibrary />} />
             </Route>
           </Route>
