@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
@@ -25,7 +25,15 @@ import {
   APPETITE_OPTIONS,
   IMPAIRMENT_OPTIONS,
 } from '@/lib/questionnaire-config'
+import { getQuestionnaireConfigByWeek } from '@/services/questionnaire_configs'
 import { Loader2, AlertCircle } from 'lucide-react'
+
+interface FieldConfig {
+  enabled: boolean
+  label: string
+  hint?: string
+}
+type WeekConfigs = Record<string, FieldConfig>
 
 interface Props {
   week: number
@@ -46,6 +54,7 @@ export function QuestionnaireForm({ week, onSubmit, initialData, submitLabel, is
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const [config, setConfig] = useState<WeekConfigs | null>(null)
 
   const get = (field: string, def: any) =>
     initialData && initialData[field] !== undefined && initialData[field] !== null
@@ -79,9 +88,22 @@ export function QuestionnaireForm({ week, onSubmit, initialData, submitLabel, is
     future_expectations: get('future_expectations', ''),
   })
 
+  useEffect(() => {
+    if (isEditing) return
+    getQuestionnaireConfigByWeek(week)
+      .then((c) => setConfig((c?.configs as WeekConfigs) || null))
+      .catch(() => setConfig(null))
+  }, [week, isEditing])
+
+  const isEnabled = (name: string) => isEditing || !config || config[name]?.enabled !== false
+  const getLabel = (name: string, def: string) => config?.[name]?.label || def
+  const getHint = (name: string, def: string) => config?.[name]?.hint || def
+
   const requiredFields = [
-    ...BASE_REQUIRED,
-    ...(form.improvement_areas.includes('Outro') ? ['improvement_areas_other'] : []),
+    ...BASE_REQUIRED.filter(isEnabled),
+    ...(form.improvement_areas.includes('Outro') && isEnabled('improvement_areas')
+      ? ['improvement_areas_other']
+      : []),
   ]
 
   const update = (field: string, value: any) => {
@@ -121,7 +143,7 @@ export function QuestionnaireForm({ week, onSubmit, initialData, submitLabel, is
   const renderFreqSelect = (fieldName: string, label: string) => (
     <div key={fieldName} className="space-y-1.5">
       <Label className="text-sm font-medium text-slate-700">
-        {label} <span className="text-red-500">*</span>
+        {getLabel(fieldName, label)} <span className="text-red-500">*</span>
       </Label>
       <Select value={form[fieldName]} onValueChange={(v) => update(fieldName, v)}>
         <SelectTrigger className={cn('h-10', errors[fieldName] && 'border-red-400')}>
@@ -147,8 +169,8 @@ export function QuestionnaireForm({ week, onSubmit, initialData, submitLabel, is
     <div key={f.name} className="space-y-2">
       <div className="flex justify-between items-center">
         <div>
-          <Label className="text-sm font-medium">{f.label}</Label>
-          <span className="text-xs text-slate-400 block">{f.hint}</span>
+          <Label className="text-sm font-medium">{getLabel(f.name, f.label)}</Label>
+          <span className="text-xs text-slate-400 block">{getHint(f.name, f.hint)}</span>
         </div>
         <span className="text-sm font-bold text-primary">{form[f.name]}/10</span>
       </div>
@@ -164,7 +186,7 @@ export function QuestionnaireForm({ week, onSubmit, initialData, submitLabel, is
   const renderRequiredSelect = (fieldName: string, label: string, options: readonly string[]) => (
     <div className="space-y-1.5">
       <Label className="text-sm font-medium text-slate-700">
-        {label} <span className="text-red-500">*</span>
+        {getLabel(fieldName, label)} <span className="text-red-500">*</span>
       </Label>
       <Select value={form[fieldName]} onValueChange={(v) => update(fieldName, v)}>
         <SelectTrigger className={cn('h-10', errors[fieldName] && 'border-red-400')}>
@@ -197,99 +219,121 @@ export function QuestionnaireForm({ week, onSubmit, initialData, submitLabel, is
       </div>
 
       {!isEditing && (
-        <Card className="p-5 space-y-2">
-          <Label className="text-sm font-medium">Nome completo</Label>
-          <Input value={user?.name || ''} readOnly className="bg-slate-50" />
+        <Card className="p-5 space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium">Nome completo</Label>
+            <Input value={user?.name || ''} readOnly className="bg-slate-50" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium">Email</Label>
+            <Input value={user?.email || ''} readOnly className="bg-slate-50" />
+          </div>
         </Card>
       )}
 
       <Card className="p-5 space-y-4">
-        {renderSlider(SLIDER_FIELDS[0])}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">
-            Em quais áreas você teve melhora essa semana?
-          </Label>
-          <div className="grid grid-cols-2 gap-2">
-            {IMPROVEMENT_OPTIONS.map((opt) => (
-              <div key={opt} className="flex items-center gap-2">
-                <Checkbox
-                  checked={form.improvement_areas.includes(opt)}
-                  onCheckedChange={() => toggleArea(opt)}
-                />
-                <Label className="text-sm cursor-pointer" onClick={() => toggleArea(opt)}>
-                  {opt}
-                </Label>
-              </div>
-            ))}
-          </div>
-          {form.improvement_areas.includes('Outro') && (
-            <div className="space-y-1.5 mt-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Especifique a outra área <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                value={form.improvement_areas_other}
-                onChange={(e) => update('improvement_areas_other', e.target.value)}
-                placeholder="Descreva a área de melhora..."
-                className={cn(errors.improvement_areas_other && 'border-red-400')}
-              />
-              {errors.improvement_areas_other && (
-                <p className="text-xs text-red-500 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" /> Obrigatório
-                </p>
-              )}
+        {isEnabled(SLIDER_FIELDS[0].name) && renderSlider(SLIDER_FIELDS[0])}
+        {isEnabled('improvement_areas') && (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              {getLabel('improvement_areas', 'Em quais áreas você teve melhora essa semana?')}
+            </Label>
+            <div className="grid grid-cols-2 gap-2">
+              {IMPROVEMENT_OPTIONS.map((opt) => (
+                <div key={opt} className="flex items-center gap-2">
+                  <Checkbox
+                    checked={form.improvement_areas.includes(opt)}
+                    onCheckedChange={() => toggleArea(opt)}
+                  />
+                  <Label className="text-sm cursor-pointer" onClick={() => toggleArea(opt)}>
+                    {opt}
+                  </Label>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
-        {SLIDER_FIELDS.slice(1).map(renderSlider)}
+            {form.improvement_areas.includes('Outro') && (
+              <div className="space-y-1.5 mt-2">
+                <Label className="text-sm font-medium text-slate-700">
+                  Especifique a outra área <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  value={form.improvement_areas_other}
+                  onChange={(e) => update('improvement_areas_other', e.target.value)}
+                  placeholder="Descreva a área de melhora..."
+                  className={cn(errors.improvement_areas_other && 'border-red-400')}
+                />
+                {errors.improvement_areas_other && (
+                  <p className="text-xs text-red-500 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> Obrigatório
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+        {SLIDER_FIELDS.slice(1)
+          .filter((f) => isEnabled(f.name))
+          .map(renderSlider)}
       </Card>
 
       <Card className="p-5 space-y-4">
         <h3 className="font-semibold text-slate-800">Sintomas e Frequência</h3>
-        {FREQUENCY_FIELDS.map((f) => renderFreqSelect(f.name, f.label))}
-      </Card>
-
-      <Card className="p-5 space-y-4">
-        <h3 className="font-semibold text-slate-800">
-          <br />
-        </h3>
-        {renderRequiredSelect(
-          'appetite_weight_change',
-          'Tem apresentado alteração do apetite ou do peso?',
-          APPETITE_OPTIONS,
-        )}
-        {renderRequiredSelect(
-          'functional_impairment',
-          'Tem apresentado prejuízo importante do seu funcionamento?',
-          IMPAIRMENT_OPTIONS,
+        {FREQUENCY_FIELDS.filter((f) => isEnabled(f.name)).map((f) =>
+          renderFreqSelect(f.name, f.label),
         )}
       </Card>
 
-      <Card className="p-5 space-y-4">
-        <h3 className="font-semibold text-slate-800">Evolução e Expectativas</h3>
-        <div className="space-y-1">
-          <Label className="text-sm font-medium">
-            Qual evolução específica você teve essa semana?
-          </Label>
-          <Textarea
-            value={form.specific_evolution}
-            onChange={(e) => update('specific_evolution', e.target.value)}
-            placeholder="Descreva sua evolução..."
-            className="min-h-[80px]"
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-sm font-medium">
-            O que você espera que melhore nas próximas semanas?
-          </Label>
-          <Textarea
-            value={form.future_expectations}
-            onChange={(e) => update('future_expectations', e.target.value)}
-            placeholder="Descreva suas expectativas..."
-            className="min-h-[80px]"
-          />
-        </div>
-      </Card>
+      {(isEnabled('appetite_weight_change') || isEnabled('functional_impairment')) && (
+        <Card className="p-5 space-y-4">
+          {isEnabled('appetite_weight_change') &&
+            renderRequiredSelect(
+              'appetite_weight_change',
+              'Tem apresentado alteração do apetite ou do peso?',
+              APPETITE_OPTIONS,
+            )}
+          {isEnabled('functional_impairment') &&
+            renderRequiredSelect(
+              'functional_impairment',
+              'Tem apresentado prejuízo importante do seu funcionamento?',
+              IMPAIRMENT_OPTIONS,
+            )}
+        </Card>
+      )}
+
+      {(isEnabled('specific_evolution') || isEnabled('future_expectations')) && (
+        <Card className="p-5 space-y-4">
+          <h3 className="font-semibold text-slate-800">Evolução e Expectativas</h3>
+          {isEnabled('specific_evolution') && (
+            <div className="space-y-1">
+              <Label className="text-sm font-medium">
+                {getLabel('specific_evolution', 'Qual evolução específica você teve essa semana?')}
+              </Label>
+              <Textarea
+                value={form.specific_evolution}
+                onChange={(e) => update('specific_evolution', e.target.value)}
+                placeholder="Descreva sua evolução..."
+                className="min-h-[80px]"
+              />
+            </div>
+          )}
+          {isEnabled('future_expectations') && (
+            <div className="space-y-1">
+              <Label className="text-sm font-medium">
+                {getLabel(
+                  'future_expectations',
+                  'O que você espera que melhore nas próximas semanas?',
+                )}
+              </Label>
+              <Textarea
+                value={form.future_expectations}
+                onChange={(e) => update('future_expectations', e.target.value)}
+                placeholder="Descreva suas expectativas..."
+                className="min-h-[80px]"
+              />
+            </div>
+          )}
+        </Card>
+      )}
 
       <Button onClick={handleSubmit} disabled={saving} className="w-full" size="lg">
         {saving ? (

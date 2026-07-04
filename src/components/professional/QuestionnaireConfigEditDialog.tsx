@@ -13,23 +13,34 @@ import {
   upsertQuestionnaireConfig,
   type QuestionnaireConfig,
 } from '@/services/questionnaire_configs'
-import { SLIDER_FIELDS, FREQUENCY_FIELDS } from '@/lib/questionnaire-config'
+import {
+  SLIDER_FIELDS,
+  FREQUENCY_FIELDS,
+  CHECKBOX_FIELDS,
+  SELECT_FIELDS,
+  TEXTAREA_FIELDS,
+} from '@/lib/questionnaire-config'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2, Save } from 'lucide-react'
 
 interface FieldConfig {
   enabled: boolean
   label: string
+  hint?: string
 }
 
 type WeekConfigs = Record<string, FieldConfig>
 
 function buildDefaultConfigs(): WeekConfigs {
   const configs: WeekConfigs = {}
-  for (const f of SLIDER_FIELDS) {
-    configs[f.name] = { enabled: true, label: f.label }
-  }
-  for (const f of FREQUENCY_FIELDS) {
+  const allFields = [
+    ...SLIDER_FIELDS,
+    ...CHECKBOX_FIELDS,
+    ...FREQUENCY_FIELDS,
+    ...SELECT_FIELDS,
+    ...TEXTAREA_FIELDS,
+  ]
+  for (const f of allFields) {
     configs[f.name] = { enabled: true, label: f.label }
   }
   return configs
@@ -88,7 +99,7 @@ export function QuestionnaireConfigEditDialog({
     }
   }
 
-  const renderFieldRow = (name: string, defaultLabel: string) => (
+  const renderFieldRow = (name: string, defaultLabel: string, defaultHint?: string) => (
     <div
       key={name}
       className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50"
@@ -97,11 +108,21 @@ export function QuestionnaireConfigEditDialog({
         checked={configs[name]?.enabled ?? true}
         onCheckedChange={(v) => updateField(name, { enabled: v })}
       />
-      <Input
-        value={configs[name]?.label ?? defaultLabel}
-        onChange={(e) => updateField(name, { label: e.target.value })}
-        className="bg-white flex-1 text-sm"
-      />
+      <div className="flex-1 space-y-2">
+        <Input
+          value={configs[name]?.label ?? defaultLabel}
+          onChange={(e) => updateField(name, { label: e.target.value })}
+          className="bg-white text-sm"
+        />
+        {defaultHint !== undefined && (
+          <Input
+            value={configs[name]?.hint ?? defaultHint}
+            onChange={(e) => updateField(name, { hint: e.target.value })}
+            className="bg-white text-xs text-slate-500"
+            placeholder="Instrução auxiliar..."
+          />
+        )}
+      </div>
     </div>
   )
 
@@ -123,7 +144,15 @@ export function QuestionnaireConfigEditDialog({
               Campos Numéricos (0-10)
             </h3>
             <div className="space-y-3">
-              {SLIDER_FIELDS.map((f) => renderFieldRow(f.name, f.label))}
+              {SLIDER_FIELDS.map((f) => renderFieldRow(f.name, f.label, f.hint))}
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-800 border-b pb-2 mb-3">
+              Campos de Múltipla Escolha
+            </h3>
+            <div className="space-y-3">
+              {CHECKBOX_FIELDS.map((f) => renderFieldRow(f.name, f.label))}
             </div>
           </div>
           <div>
@@ -132,6 +161,20 @@ export function QuestionnaireConfigEditDialog({
             </h3>
             <div className="space-y-3">
               {FREQUENCY_FIELDS.map((f) => renderFieldRow(f.name, f.label))}
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-800 border-b pb-2 mb-3">
+              Campos de Seleção
+            </h3>
+            <div className="space-y-3">
+              {SELECT_FIELDS.map((f) => renderFieldRow(f.name, f.label))}
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-800 border-b pb-2 mb-3">Campos de Texto</h3>
+            <div className="space-y-3">
+              {TEXTAREA_FIELDS.map((f) => renderFieldRow(f.name, f.label))}
             </div>
           </div>
           <div className="flex items-center justify-between pt-2">

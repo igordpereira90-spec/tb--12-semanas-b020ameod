@@ -38,6 +38,10 @@ export const SLIDER_FIELDS = [
   },
 ]
 
+export const CHECKBOX_FIELDS = [
+  { name: 'improvement_areas', label: 'Em quais áreas você teve melhora essa semana?' },
+]
+
 export const FREQUENCY_FIELDS = [
   { name: 'anxiety_freq', label: 'Com que frequência tem apresentado ansiedade esta semana?' },
   { name: 'insomnia_freq', label: 'Com que frequência tem apresentado insônia?' },
@@ -67,6 +71,27 @@ export const FREQUENCY_FIELDS = [
   },
   { name: 'concentration_change', label: 'Tem apresentado alteração da concentração?' },
   { name: 'physical_activity', label: 'Tem feito atividade física essa semana?' },
+]
+
+export const SELECT_FIELDS = [
+  { name: 'appetite_weight_change', label: 'Tem apresentado alteração do apetite ou do peso?' },
+  {
+    name: 'functional_impairment',
+    label: 'Tem apresentado prejuízo importante do seu funcionamento?',
+  },
+]
+
+export const TEXTAREA_FIELDS = [
+  { name: 'specific_evolution', label: 'Qual evolução específica você teve essa semana?' },
+  { name: 'future_expectations', label: 'O que você espera que melhore nas próximas semanas?' },
+]
+
+export const ALL_CONFIGURABLE_FIELDS = [
+  ...SLIDER_FIELDS.map((f) => ({ ...f, type: 'slider' as const })),
+  ...CHECKBOX_FIELDS.map((f) => ({ ...f, type: 'checkbox' as const })),
+  ...FREQUENCY_FIELDS.map((f) => ({ ...f, type: 'freq' as const })),
+  ...SELECT_FIELDS.map((f) => ({ ...f, type: 'select' as const })),
+  ...TEXTAREA_FIELDS.map((f) => ({ ...f, type: 'textarea' as const })),
 ]
 
 export const ALERT_FREQ_VALUES = ['Bastante', 'Demais']
