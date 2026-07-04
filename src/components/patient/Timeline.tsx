@@ -1,23 +1,34 @@
-import { CheckCircle2, Clock, Lock } from 'lucide-react'
+import { CheckCircle2, Clock, Lock, Stethoscope, ClipboardList } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ALL_WEEKS, QUESTIONNAIRE_WEEKS, CONSULTATION_WEEKS } from '@/lib/questionnaire-config'
 
-export function Timeline({ currentWeek }: { currentWeek: number }) {
-  const steps = [0, 2, 4, 6, 8, 10, 12]
+interface TimelineProps {
+  completedWeeks: number[]
+}
 
+export function Timeline({ completedWeeks }: TimelineProps) {
   return (
-    <div className="relative w-full overflow-x-auto py-8 hide-scrollbar">
+    <div className="relative w-full overflow-x-auto py-8">
       <div className="flex items-center min-w-max px-4">
-        {steps.map((week, idx) => {
-          const isCompleted = week < currentWeek
-          const isCurrent = week === currentWeek
-          const isLocked = week > currentWeek
+        {ALL_WEEKS.map((week, idx) => {
+          const isCompleted = completedWeeks.includes(week)
+          const isQuestionnaire = QUESTIONNAIRE_WEEKS.includes(week)
+          const isConsultation = CONSULTATION_WEEKS.includes(week)
+          const prevWeeks = ALL_WEEKS.filter((w) => w < week)
+          const isAvailable =
+            isCompleted ||
+            prevWeeks.every((w) =>
+              QUESTIONNAIRE_WEEKS.includes(w) ? completedWeeks.includes(w) : true,
+            )
+          const isCurrent =
+            !isCompleted && isAvailable && prevWeeks.some((w) => completedWeeks.includes(w))
 
           return (
             <div key={week} className="flex items-center">
               <div className="flex flex-col items-center relative group">
                 <div
                   className={cn(
-                    'w-12 h-12 rounded-full flex items-center justify-center z-10 transition-all duration-300',
+                    'w-11 h-11 rounded-full flex items-center justify-center z-10 transition-all duration-300',
                     isCompleted
                       ? 'bg-emerald-100 text-emerald-600 shadow-sm'
                       : isCurrent
@@ -26,25 +37,27 @@ export function Timeline({ currentWeek }: { currentWeek: number }) {
                   )}
                 >
                   {isCompleted ? (
-                    <CheckCircle2 className="w-6 h-6" />
+                    <CheckCircle2 className="w-5 h-5" />
                   ) : isCurrent ? (
-                    <Clock className="w-6 h-6 animate-pulse" />
+                    <Clock className="w-5 h-5 animate-pulse" />
+                  ) : isConsultation ? (
+                    <Stethoscope className="w-4 h-4" />
                   ) : (
-                    <Lock className="w-5 h-5" />
+                    <Lock className="w-4 h-4" />
                   )}
                 </div>
                 <div
                   className={cn(
-                    'absolute -bottom-8 whitespace-nowrap text-xs font-semibold transition-colors',
+                    'absolute -bottom-7 whitespace-nowrap text-[10px] font-semibold transition-colors flex flex-col items-center',
                     isCurrent ? 'text-primary' : 'text-slate-500',
                   )}
                 >
-                  Semana {week}
+                  <span>S{week}</span>
+                  {isQuestionnaire && <ClipboardList className="w-2.5 h-2.5 mt-0.5 opacity-50" />}
                 </div>
               </div>
-
-              {idx < steps.length - 1 && (
-                <div className="w-16 md:w-24 h-1 mx-2 rounded-full overflow-hidden bg-slate-100">
+              {idx < ALL_WEEKS.length - 1 && (
+                <div className="w-12 md:w-20 h-1 mx-1.5 rounded-full overflow-hidden bg-slate-100">
                   <div
                     className={cn(
                       'h-full transition-all duration-1000',

@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { PATIENT_MOCK } from '@/lib/mock'
+import { LIBRARY_MOCK } from '@/lib/mock'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { BookOpen, Info } from 'lucide-react'
 
 export default function PatientLibrary() {
-  const [library, setLibrary] = useState(PATIENT_MOCK.library)
+  const [library, setLibrary] = useState(LIBRARY_MOCK)
 
   const toggleRead = (id: number) => {
     setLibrary((prev) =>

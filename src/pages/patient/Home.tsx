@@ -1,19 +1,58 @@
-import { PATIENT_MOCK } from '@/lib/mock'
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/hooks/use-auth'
+import { useRealtime } from '@/hooks/use-realtime'
+import { getQuestionnaires } from '@/services/questionnaires'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles, Loader2 } from 'lucide-react'
 import { Timeline } from '@/components/patient/Timeline'
 import { MedalCase } from '@/components/patient/MedalCase'
-import { useNavigate } from 'react-router-dom'
+import { calculateMedals, getCurrentWeek, getProgress } from '@/lib/patient-utils'
+import type { Questionnaire } from '@/services/questionnaires'
 
 export default function PatientHome() {
+  const { user } = useAuth()
   const navigate = useNavigate()
-  const { name, currentWeek, progress, medals } = PATIENT_MOCK
+  const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const loadData = useCallback(async () => {
+    if (!user?.id) return
+    try {
+      const data = await getQuestionnaires(user.id)
+      setQuestionnaires(data)
+    } catch {
+      setQuestionnaires([])
+    } finally {
+      setLoading(false)
+    }
+  }, [user?.id])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+  useRealtime('questionnaires', () => {
+    loadData()
+  })
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  const name = user?.name || 'Usuário'
+  const currentWeek = getCurrentWeek(questionnaires)
+  const progress = getProgress(questionnaires)
+  const completedWeeks = questionnaires.map((q) => q.week_number)
+  const medals = calculateMedals(questionnaires, 2)
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Welcome Section */}
       <section className="glass-panel p-6 md:p-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -34,7 +73,6 @@ export default function PatientHome() {
         </div>
       </section>
 
-      {/* Progress & Timeline */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-800">Sua Jornada</h2>
@@ -43,14 +81,13 @@ export default function PatientHome() {
           </span>
         </div>
         <Card className="p-2 md:p-6 shadow-sm border-slate-100">
-          <Timeline currentWeek={currentWeek} />
+          <Timeline completedWeeks={completedWeeks} />
           <div className="mt-8 px-4 pb-4">
             <Progress value={progress} className="h-3 bg-slate-100" />
           </div>
         </Card>
       </section>
 
-      {/* Gamification */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-slate-800">Suas Conquistas</h2>
         <MedalCase medals={medals} />

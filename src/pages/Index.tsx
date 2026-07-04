@@ -1,22 +1,24 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import useAppStore from '@/stores/main'
+import { useAuth } from '@/hooks/use-auth'
+import { Loader2 } from 'lucide-react'
 
 export default function Index() {
+  const { user, loading } = useAuth()
   const navigate = useNavigate()
-  const { role } = useAppStore()
 
   useEffect(() => {
-    if (role === 'patient') {
-      navigate('/patient', { replace: true })
-    } else {
-      navigate('/pro', { replace: true })
+    if (loading) return
+    if (!user) {
+      navigate('/login', { replace: true })
+      return
     }
-  }, [role, navigate])
+    navigate(user.role === 'professional' ? '/pro' : '/patient', { replace: true })
+  }, [user, loading, navigate])
 
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </div>
   )
 }
