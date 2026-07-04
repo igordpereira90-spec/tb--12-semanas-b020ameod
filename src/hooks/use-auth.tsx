@@ -69,7 +69,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await pb.collection('users').authWithPassword(email, password)
       return { error: null }
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.status === 400 || error?.status === 401) {
+        return {
+          error: {
+            status: 401,
+            message: 'Credenciais inválidas. Por favor, tente novamente.',
+          },
+        }
+      }
       return { error }
     }
   }

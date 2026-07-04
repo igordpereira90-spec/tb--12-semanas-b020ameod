@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
 import { validatePassword } from '@/lib/password-validation'
 import { logAction } from '@/services/audit_logs'
-import { Brain, ArrowRight, CheckCircle2, XCircle, ShieldAlert } from 'lucide-react'
+import { Brain, ArrowRight, CheckCircle2, XCircle, ShieldAlert, Lock } from 'lucide-react'
 
 export default function Login() {
   const { signIn, signUp } = useAuth()
@@ -38,7 +38,11 @@ export default function Login() {
     setError('')
     const { error } = await signIn(email, password)
     if (error) {
-      setError(getErrorMessage(error))
+      const errMsg =
+        error?.status === 401
+          ? 'Credenciais inválidas. Por favor, tente novamente.'
+          : getErrorMessage(error)
+      setError(errMsg)
       return
     }
     logAction('LOGIN').catch(() => {})
@@ -54,7 +58,11 @@ export default function Login() {
     }
     const { error } = await signUp(email, password, name || '')
     if (error) {
-      setError(getErrorMessage(error))
+      const errMsg =
+        error?.status === 401
+          ? 'Credenciais inválidas. Por favor, tente novamente.'
+          : getErrorMessage(error)
+      setError(errMsg)
       return
     }
     logAction('LOGIN').catch(() => {})
@@ -193,10 +201,11 @@ export default function Login() {
                   className="w-full bg-gradient-to-r from-[#C5A028] to-[#D4AF37] hover:from-[#B8941F] hover:to-[#C5A028] text-white shadow-lg shadow-amber-500/20"
                   size="lg"
                 >
+                  <Lock className="w-4 h-4 mr-2" />
                   Entrar <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
                 <p className="text-xs text-slate-400 text-center mt-2">
-                  Demo: igordpereira90@gmail.com / Skip@Pass
+                  Use seu e-mail e senha cadastrados para acessar o programa.
                 </p>
               </form>
             </TabsContent>
