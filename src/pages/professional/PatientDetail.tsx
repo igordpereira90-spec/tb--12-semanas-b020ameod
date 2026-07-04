@@ -22,11 +22,11 @@ import {
 } from 'lucide-react'
 import { PatientChart } from '@/components/professional/PatientChart'
 import { LongitudinalTable } from '@/components/professional/LongitudinalTable'
-import { QualitativeTimeline } from '@/components/professional/QualitativeTimeline'
 import { QuestionnaireHistory } from '@/components/professional/QuestionnaireHistory'
 import { QuestionnaireEditDialog } from '@/components/professional/QuestionnaireEditDialog'
 import { useToast } from '@/hooks/use-toast'
 import { getAlerts, generateSummary, getCurrentWeek } from '@/lib/patient-utils'
+import { getErrorMessage } from '@/lib/pocketbase/errors'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
 
@@ -39,6 +39,7 @@ export default function PatientDetail() {
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(true)
   const [editingQ, setEditingQ] = useState<Questionnaire | null>(null)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   const loadData = useCallback(async () => {
     if (!id) return
@@ -66,10 +67,11 @@ export default function PatientDetail() {
     try {
       await updateQuestionnaire(editingQ.id, data)
       setEditingQ(null)
+      setEditDialogOpen(false)
       toast({ title: 'Sucesso!', description: 'Questionário atualizado com sucesso.' })
       loadData()
-    } catch {
-      toast({ title: 'Erro', description: 'Não foi possível atualizar o questionário.' })
+    } catch (err) {
+      toast({ title: 'Erro ao atualizar', description: getErrorMessage(err) })
     }
   }
 
@@ -186,15 +188,13 @@ export default function PatientDetail() {
         <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
           <History className="w-5 h-5 mr-2 text-primary" /> Histórico de Questionários
         </h2>
-        <QuestionnaireHistory questionnaires={sorted} onEdit={(q) => setEditingQ(q)} />
-      </Card>
-
-      <Card className="p-6 border-primary/10 shadow-sm">
-        <h2 className="text-lg font-semibold mb-4 flex items-center text-slate-800">
-          <span className="w-1.5 h-5 bg-primary rounded-full inline-block mr-2"></span>
-          Evolução Qualitativa por Semana
-        </h2>
-        <QualitativeTimeline questionnaires={sorted} />
+        <QuestionnaireHistory
+          questionnaires={sorted}
+          onEdit={(q) => {
+            setEditingQ(q)
+            setEditDialogOpen(true)
+          }}
+        />
       </Card>
 
       <Card className="p-6 border-primary/10 shadow-sm bg-primary/5">
@@ -231,8 +231,11 @@ export default function PatientDetail() {
       </Card>
       <QuestionnaireEditDialog
         questionnaire={editingQ}
-        open={!!editingQ}
-        onOpenChange={(o) => !o && setEditingQ(null)}
+        open={editDialogOpen}
+        onOpenChange={(o) => {
+          setEditDialogOpen(o)
+          if (!o) setEditingQ(null)
+        }}
         onSubmit={handleEditSubmit}
       />
     </div>

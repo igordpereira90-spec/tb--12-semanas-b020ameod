@@ -25,6 +25,11 @@ const SCORE_ROWS = [
   { label: 'Sensação Geral', key: 'overall_feeling' },
 ]
 
+const QUALITATIVE_ROWS = [
+  { label: 'Evolução Específica', key: 'specific_evolution' },
+  { label: 'Expectativas Futuras', key: 'future_expectations' },
+]
+
 interface Props {
   questionnaires: Questionnaire[]
 }
@@ -79,6 +84,40 @@ export function LongitudinalTable({ questionnaires }: Props) {
                     className="text-center py-2.5 px-3 text-slate-600 border-b border-slate-50"
                   >
                     {val ? String(val) : '—'}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+          <tr className="bg-primary/10 border-t-2 border-primary/20">
+            <td
+              colSpan={weekData.length + 1}
+              className="py-2 px-3 text-xs font-bold text-primary uppercase tracking-wide"
+            >
+              Respostas Qualitativas
+            </td>
+          </tr>
+          {QUALITATIVE_ROWS.map((row) => (
+            <tr key={row.key} className="hover:bg-slate-50 align-top">
+              <td className="py-3 px-3 font-medium text-slate-700 sticky left-0 bg-white z-10 border-b border-slate-100 shadow-[1px_0_0_0_rgba(0,0,0,0.05)]">
+                {row.label}
+              </td>
+              {weekData.map((w) => {
+                const val = w.data
+                  ? (w.data[row.key as keyof Questionnaire] as string | null | undefined)
+                  : null
+                return (
+                  <td
+                    key={w.week}
+                    className="py-3 px-3 text-slate-600 border-b border-slate-50 max-w-[200px]"
+                  >
+                    {val && val.trim() ? (
+                      <p className="text-xs leading-relaxed whitespace-pre-wrap break-words">
+                        {val}
+                      </p>
+                    ) : (
+                      <span className="text-xs text-slate-300 italic">Sem dados</span>
+                    )}
                   </td>
                 )
               })}
