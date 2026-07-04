@@ -250,7 +250,9 @@ export function QuestionnaireForm({ week, onSubmit, initialData, submitLabel, is
       </Card>
 
       <Card className="p-5 space-y-4">
-        <h3 className="font-semibold text-slate-800">Apetite e Funcionamento</h3>
+        <h3 className="font-semibold text-slate-800">
+          <br />
+        </h3>
         {renderRequiredSelect(
           'appetite_weight_change',
           'Tem apresentado alteração do apetite ou do peso?',
