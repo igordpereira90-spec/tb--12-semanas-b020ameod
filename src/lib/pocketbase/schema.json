@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T17:43:40.343Z",
+  "generatedAt": "2026-07-04T18:05:11.466Z",
   "collections": [
     {
       "name": "users",
@@ -467,6 +467,120 @@
         "CREATE INDEX idx_audit_logs_actor ON audit_logs (actor)",
         "CREATE INDEX idx_audit_logs_created ON audit_logs (created DESC)",
         "CREATE INDEX idx_audit_logs_action ON audit_logs (action)"
+      ]
+    },
+    {
+      "name": "professional_notes",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.role = 'professional'",
+        "view": "@request.auth.role = 'professional'",
+        "create": "@request.auth.role = 'professional'",
+        "update": "@request.auth.role = 'professional'",
+        "delete": "@request.auth.role = 'professional'"
+      },
+      "fields": [
+        {
+          "name": "patient",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "professional",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "content",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_prof_notes_patient ON professional_notes (patient)",
+        "CREATE INDEX idx_prof_notes_professional ON professional_notes (professional)"
+      ]
+    },
+    {
+      "name": "notifications",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && recipient = @request.auth.id",
+        "view": "@request.auth.id != '' && recipient = @request.auth.id",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != '' && recipient = @request.auth.id",
+        "delete": "@request.auth.id != '' && recipient = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "recipient",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "read",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "type",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["info", "success", "alert"]
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_notifications_recipient ON notifications (recipient)",
+        "CREATE INDEX idx_notifications_created ON notifications (created DESC)"
       ]
     }
   ]

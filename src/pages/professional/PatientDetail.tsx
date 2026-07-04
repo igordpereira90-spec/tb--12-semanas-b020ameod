@@ -28,6 +28,8 @@ import { useToast } from '@/hooks/use-toast'
 import { getAlerts, getCurrentWeek } from '@/lib/patient-utils'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
 import { logAction } from '@/services/audit_logs'
+import { useAuth } from '@/hooks/use-auth'
+import { getNotes, createNote, updateNote } from '@/services/professional_notes'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
 
@@ -39,8 +41,11 @@ export default function PatientDetail() {
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
   const [editingQ, setEditingQ] = useState<Questionnaire | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [noteId, setNoteId] = useState<string | null>(null)
+  const [savingNotes, setSavingNotes] = useState(false)
 
   const loadData = useCallback(async () => {
     if (!id) return
@@ -54,12 +59,28 @@ export default function PatientDetail() {
     } finally {
       setLoading(false)
     }
+    try {
+      const noteList = await getNotes(id)
+      if (noteList.length > 0) {
+        setNotes(noteList[0].content)
+        setNoteId(noteList[0].id)
+      } else {
+        setNotes('')
+        setNoteId(null)
+      }
+    } catch {
+      setNotes('')
+      setNoteId(null)
+    }
   }, [id])
 
   useEffect(() => {
     loadData()
   }, [loadData])
   useRealtime('questionnaires', () => {
+    loadData()
+  })
+  useRealtime('professional_notes', () => {
     loadData()
   })
 
@@ -77,6 +98,24 @@ export default function PatientDetail() {
       loadData()
     } catch (err) {
       toast({ title: 'Erro ao atualizar', description: getErrorMessage(err) })
+    }
+  }
+
+  const handleSaveNotes = async () => {
+    if (!id || !user?.id) return
+    setSavingNotes(true)
+    try {
+      if (noteId) {
+        await updateNote(noteId, notes)
+      } else {
+        const created = await createNote(id, user.id, notes)
+        setNoteId(created.id)
+      }
+      toast({ title: 'Notas salvas', description: 'Observações atualizadas.' })
+    } catch (err) {
+      toast({ title: 'Erro ao salvar', description: getErrorMessage(err) })
+    } finally {
+      setSavingNotes(false)
     }
   }
 
@@ -182,12 +221,16 @@ export default function PatientDetail() {
         />
         <div className="flex justify-end">
           <Button
-            onClick={() =>
-              toast({ title: 'Notas salvas', description: 'Observações atualizadas.' })
-            }
+            onClick={handleSaveNotes}
+            disabled={savingNotes}
             className="bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20"
           >
-            <Save className="w-4 h-4 mr-2" /> Salvar Notas
+            {savingNotes ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}{' '}
+            Salvar Notas
           </Button>
         </div>
       </Card>

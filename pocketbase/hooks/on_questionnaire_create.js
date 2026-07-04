@@ -86,6 +86,26 @@ onRecordAfterCreateSuccess((e) => {
     user.set('points', points)
     user.set('badges', JSON.stringify(badges))
     $app.saveNoValidate(user)
+
+    try {
+      var professionals = $app.findRecordsByFilter('users', "role = 'professional'", '', 0, 0)
+      var notifCol = $app.findCollectionByNameOrId('notifications')
+      var patientName = user.getString('name') || 'Paciente'
+      for (var i = 0; i < professionals.length; i++) {
+        var notif = new Record(notifCol)
+        notif.set('recipient', professionals[i].id)
+        notif.set('title', 'Novo questionário preenchido')
+        notif.set(
+          'message',
+          'Paciente ' + patientName + ' completou o questionário da Semana ' + weekNum,
+        )
+        notif.set('read', false)
+        notif.set('type', 'info')
+        $app.saveNoValidate(notif)
+      }
+    } catch (notifErr) {
+      $app.logger().error('notification creation error', 'error', notifErr.message)
+    }
   } catch (err) {
     $app.logger().error('gamification hook error', 'error', err.message)
   }

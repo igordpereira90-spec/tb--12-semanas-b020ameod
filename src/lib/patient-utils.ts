@@ -58,7 +58,7 @@ export function getPatientStatus(questionnaires: Questionnaire[]): 'attention' |
   if (getAlerts(latest).hasAlert) return 'attention'
   const completedWeeks = questionnaires.map((q) => q.week_number)
   const allDone = QUESTIONNAIRE_WEEKS.every((w) => completedWeeks.includes(w))
-  return allDone ? 'ok' : 'ok'
+  return allDone ? 'ok' : 'pending'
 }
 
 export function getCurrentWeek(questionnaires: Questionnaire[]): number {
@@ -69,7 +69,8 @@ export function getCurrentWeek(questionnaires: Questionnaire[]): number {
 }
 
 export function getProgress(questionnaires: Questionnaire[]): number {
-  return Math.round((questionnaires.length / QUESTIONNAIRE_WEEKS.length) * 100)
+  const distinctWeeks = new Set(questionnaires.map((q) => q.week_number))
+  return Math.round((distinctWeeks.size / QUESTIONNAIRE_WEEKS.length) * 100)
 }
 
 export function generateSummary(questionnaires: Questionnaire[]): string {

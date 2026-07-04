@@ -18,6 +18,7 @@ import {
 import { Search, AlertCircle, Clock, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getPatientStatus, getCurrentWeek } from '@/lib/patient-utils'
+import { QUESTIONNAIRE_WEEKS } from '@/lib/questionnaire-config'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
 
@@ -171,7 +172,9 @@ export default function ProDashboard() {
                   >
                     <TableCell className="font-medium text-slate-800">{patient.name}</TableCell>
                     <TableCell>Semana {getCurrentWeek(pQs)}</TableCell>
-                    <TableCell className="text-slate-500">{pQs.length} de 5</TableCell>
+                    <TableCell className="text-slate-500">
+                      {pQs.length} de {QUESTIONNAIRE_WEEKS.length}
+                    </TableCell>
                     <TableCell>{statusBadge(status)}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" className="text-primary">
