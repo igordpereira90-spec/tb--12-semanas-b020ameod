@@ -50,18 +50,18 @@ export default function Layout() {
   })
 
   const patientNav = [
-    { path: '/patient', label: '🏠 Início', icon: Home },
-    { path: '/patient/library', label: '📚 Biblioteca', icon: BookOpen },
-    { path: '/patient/questionnaires', label: '📈 Meu Progresso', icon: Activity },
-    { path: '/bonus', label: '🎁 Bônus', icon: Gift },
-    { path: '/profile', label: '👤 Perfil', icon: UserCircle },
+    { path: '/patient', label: 'Início', icon: Home },
+    { path: '/patient/library', label: 'Biblioteca', icon: BookOpen },
+    { path: '/patient/questionnaires', label: 'Meu Progresso', icon: Activity },
+    { path: '/bonus', label: 'Bônus', icon: Gift },
+    { path: '/profile', label: 'Perfil', icon: UserCircle },
   ]
   const proNav = [
     { path: '/pro', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/pro/questionnaire-settings', label: 'Questionário', icon: ClipboardList },
     { path: '/pro/materials', label: 'Material Educativo', icon: BookOpen },
     { path: '/pro/audit', label: 'Auditoria', icon: ShieldCheck },
-    { path: '/bonus', label: '🎁 Bônus', icon: Gift },
+    { path: '/bonus', label: 'Bônus', icon: Gift },
     { path: '/profile', label: 'Perfil', icon: UserCircle },
   ]
   const navItems = role === 'professional' ? proNav : patientNav
@@ -103,10 +103,11 @@ export default function Layout() {
                     : 'text-slate-600 hover:bg-primary/5 hover:text-primary',
                 )}
               >
+                <Icon className={cn('w-5 h-5 shrink-0', isActive && 'text-white')} />
                 <span className="font-medium">{item.label}</span>
               </Link>
             )
-          })}
+          })}{' '}
         </nav>
         <div className="p-4 border-t border-slate-100 space-y-2">
           <div className="flex items-center gap-3 px-4 py-2">
@@ -150,11 +151,11 @@ export default function Layout() {
               to="/profile"
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors"
             >
-              <UserCircle className="w-5 h-5" />
+              <UserCircle className="w-5 h-5 text-white" />
               <span>Perfil</span>
             </Link>
             <UserAvatar user={user} size="sm" className="md:hidden" showRing={false} />
-          </div>{' '}
+          </div>
         </header>
 
         <div className="flex-1 p-4 md:p-8 overflow-y-auto animate-fade-in-up">
@@ -177,7 +178,13 @@ export default function Layout() {
                 isActive ? 'text-primary' : 'text-slate-400 hover:text-slate-600',
               )}
             >
-              <Icon className={cn('w-6 h-6', isActive && 'fill-primary/20')} />
+              <Icon
+                className={cn(
+                  'w-6 h-6',
+                  isActive && 'fill-primary/20',
+                  item.path === '/profile' && isActive && 'text-white',
+                )}
+              />
               <span className="text-[10px] font-medium truncate max-w-[60px]">{item.label}</span>
             </Link>
           )

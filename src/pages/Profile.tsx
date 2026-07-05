@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { getAvatarUrl } from '@/lib/avatar'
 import { UserAvatar } from '@/components/UserAvatar'
-import { StockAvatarPicker } from '@/components/StockAvatarPicker'
+
 import { getErrorMessage, extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
 import pb from '@/lib/pocketbase/client'
 import { Loader2, Save, Camera, User, Mail, Calendar } from 'lucide-react'
@@ -157,12 +157,6 @@ export default function Profile() {
                 >
                   <Camera className="w-4 h-4 mr-2" /> Enviar foto
                 </Button>
-                <StockAvatarPicker
-                  onSelect={(file, previewUrl) => {
-                    setAvatarFile(file)
-                    setAvatarPreview(previewUrl)
-                  }}
-                />
               </div>
               {avatarFile && (
                 <p className="text-xs text-slate-500">
