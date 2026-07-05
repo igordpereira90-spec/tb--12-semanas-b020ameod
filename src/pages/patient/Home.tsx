@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
 import { getQuestionnaires } from '@/services/questionnaires'
 import { getEducationalMaterials } from '@/services/educational_materials'
+import { getQuestionnaireConfigs } from '@/services/questionnaire_configs'
 import { parseUserBadges } from '@/services/gamification'
 import { useMaterialCompletions } from '@/hooks/use-material-completions'
 import { Card } from '@/components/ui/card'
@@ -17,12 +18,14 @@ import { getCurrentWeek, getProgress, getProgramWeek } from '@/lib/patient-utils
 import { MAX_XP, getXPProgress } from '@/lib/scoring'
 import type { Questionnaire } from '@/services/questionnaires'
 import type { EducationalMaterial } from '@/services/educational_materials'
+import type { QuestionnaireConfig } from '@/services/questionnaire_configs'
 
 export default function PatientHome() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [materials, setMaterials] = useState<EducationalMaterial[]>([])
+  const [configs, setConfigs] = useState<QuestionnaireConfig[]>([])
   const [loading, setLoading] = useState(true)
   const { unlockedWeeks } = useUnlocks(user?.id)
   const { completedMaterialIds } = useMaterialCompletions(user?.id)
@@ -30,9 +33,14 @@ export default function PatientHome() {
   const loadData = useCallback(async () => {
     if (!user?.id) return
     try {
-      const [qs, mats] = await Promise.all([getQuestionnaires(user.id), getEducationalMaterials()])
+      const [qs, mats, cfgs] = await Promise.all([
+        getQuestionnaires(user.id),
+        getEducationalMaterials(),
+        getQuestionnaireConfigs(),
+      ])
       setQuestionnaires(qs)
       setMaterials(mats)
+      setConfigs(cfgs)
     } catch {
       setQuestionnaires([])
     } finally {
@@ -47,6 +55,9 @@ export default function PatientHome() {
     loadData()
   })
   useRealtime('educational_materials', () => {
+    loadData()
+  })
+  useRealtime('questionnaire_configs', () => {
     loadData()
   })
 
@@ -82,6 +93,29 @@ export default function PatientHome() {
     }
   }
 
+  const questionnaireConfigWeeks = useMemo(() => configs.map((c) => c.week_number), [configs])
+
+  const consultationWeeks = useMemo(() => {
+    const fromConfigs = configs
+      .filter((c) => {
+        const cfg = c.configs as Record<string, unknown>
+        return cfg?.has_consultation === true
+      })
+      .map((c) => c.week_number)
+    return fromConfigs
+  }, [configs])
+
+  const handleActivityClick = useCallback(
+    (week: number, type: 'material' | 'questionnaire' | 'consultation') => {
+      if (type === 'questionnaire') {
+        navigate(`/patient/questionnaires/${week}`)
+      } else if (type === 'material') {
+        navigate('/patient/library')
+      }
+    },
+    [navigate],
+  )
+
   return (
     <div className="space-y-6 animate-fade-in">
       <CurrentTaskCard
@@ -108,6 +142,9 @@ export default function PatientHome() {
             completedMaterialWeeks={materials
               .filter((m) => completedMaterialIds.has(m.id))
               .map((m) => m.week_number)}
+            questionnaireConfigWeeks={questionnaireConfigWeeks}
+            consultationWeeks={consultationWeeks}
+            onActivityClick={handleActivityClick}
           />
           <div className="mt-8 px-4 pb-4 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-500">

@@ -1,12 +1,4 @@
-import {
-  CheckCircle2,
-  Clock,
-  Lock,
-  Stethoscope,
-  ClipboardList,
-  Unlock,
-  BookOpen,
-} from 'lucide-react'
+import { CheckCircle2, Clock, Lock, Calendar, ClipboardCheck, Unlock, BookOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ALL_WEEKS, QUESTIONNAIRE_WEEKS, CONSULTATION_WEEKS } from '@/lib/questionnaire-config'
 
@@ -15,12 +7,17 @@ interface TimelineProps {
   unlockedWeeks?: number[]
   materialWeeks?: number[]
   completedMaterialWeeks?: number[]
+  questionnaireConfigWeeks?: number[]
+  consultationWeeks?: number[]
+  onActivityClick?: (week: number, type: 'material' | 'questionnaire' | 'consultation') => void
 }
 
 interface ActivityItem {
   label: string
   icon: typeof BookOpen
   completed: boolean
+  type: 'material' | 'questionnaire' | 'consultation'
+  clickable: boolean
 }
 
 export function Timeline({
@@ -28,22 +25,26 @@ export function Timeline({
   unlockedWeeks = [],
   materialWeeks = [],
   completedMaterialWeeks = [],
+  questionnaireConfigWeeks = [],
+  consultationWeeks = [],
+  onActivityClick,
 }: TimelineProps) {
+  const qWeeks = [...new Set([...QUESTIONNAIRE_WEEKS, ...questionnaireConfigWeeks])]
+  const cWeeks = [...new Set([...CONSULTATION_WEEKS, ...consultationWeeks])]
+
   return (
     <div className="space-y-1">
       {ALL_WEEKS.map((week, idx) => {
         const isCompleted = completedWeeks.includes(week)
-        const isQuestionnaire = QUESTIONNAIRE_WEEKS.includes(week)
-        const isConsultation = CONSULTATION_WEEKS.includes(week)
+        const isQuestionnaire = qWeeks.includes(week)
+        const isConsultation = cWeeks.includes(week)
         const hasMaterial = materialWeeks.includes(week)
         const isMaterialCompleted = completedMaterialWeeks.includes(week)
         const prevWeeks = ALL_WEEKS.filter((w) => w < week)
         const isAvailable =
           isCompleted ||
           unlockedWeeks.includes(week) ||
-          prevWeeks.every((w) =>
-            QUESTIONNAIRE_WEEKS.includes(w) ? completedWeeks.includes(w) : true,
-          )
+          prevWeeks.every((w) => (qWeeks.includes(w) ? completedWeeks.includes(w) : true))
         const isManuallyUnlocked = !isCompleted && unlockedWeeks.includes(week)
         const isCurrent =
           !isCompleted &&
@@ -57,20 +58,26 @@ export function Timeline({
             label: 'Material Educativo',
             icon: BookOpen,
             completed: isMaterialCompleted,
+            type: 'material',
+            clickable: !isLocked && !!onActivityClick,
           })
         }
         if (isQuestionnaire) {
           activities.push({
-            label: 'Formulário',
-            icon: ClipboardList,
+            label: 'Questionário',
+            icon: ClipboardCheck,
             completed: isCompleted,
+            type: 'questionnaire',
+            clickable: !isLocked && !!onActivityClick,
           })
         }
         if (isConsultation) {
           activities.push({
             label: 'Consulta',
-            icon: Stethoscope,
+            icon: Calendar,
             completed: isCompleted,
+            type: 'consultation',
+            clickable: false,
           })
         }
 
@@ -96,7 +103,7 @@ export function Timeline({
                 ) : isManuallyUnlocked ? (
                   <Unlock className="w-4 h-4" />
                 ) : isConsultation ? (
-                  <Stethoscope className="w-4 h-4" />
+                  <Calendar className="w-4 h-4" />
                 ) : (
                   <Lock className="w-4 h-4" />
                 )}
@@ -112,7 +119,7 @@ export function Timeline({
             </div>
 
             <div className="flex-1 pb-6">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span
                   className={cn(
                     'font-semibold text-sm',
@@ -136,6 +143,11 @@ export function Timeline({
                     Liberada
                   </span>
                 )}
+                {isCompleted && (
+                  <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    Concluída
+                  </span>
+                )}
               </div>
               <div className="space-y-1.5">
                 {activities.length > 0 ? (
@@ -144,6 +156,11 @@ export function Timeline({
                     return (
                       <div
                         key={act.label}
+                        onClick={() => {
+                          if (act.clickable && onActivityClick) {
+                            onActivityClick(week, act.type)
+                          }
+                        }}
                         className={cn(
                           'flex items-center gap-2 text-sm rounded-lg px-3 py-1.5 transition-colors',
                           act.completed
@@ -151,23 +168,30 @@ export function Timeline({
                             : isLocked
                               ? 'bg-slate-50 text-slate-400'
                               : 'bg-slate-50 text-slate-600',
+                          act.clickable && 'cursor-pointer hover:bg-slate-100 hover:shadow-sm',
+                          !act.clickable && 'cursor-default',
                         )}
                       >
                         <Icon
-                          className={cn('w-3.5 h-3.5', isLocked && !act.completed && 'opacity-50')}
+                          className={cn(
+                            'w-3.5 h-3.5 shrink-0',
+                            isLocked && !act.completed && 'opacity-50',
+                          )}
                         />
                         <span className="flex-1">{act.label}</span>
                         {act.completed ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                         ) : isLocked ? (
-                          <Lock className="w-3 h-3 opacity-50" />
+                          <Lock className="w-3 h-3 opacity-50 shrink-0" />
+                        ) : act.clickable ? (
+                          <span className="text-xs text-primary font-medium shrink-0">Acessar</span>
                         ) : null}
                       </div>
                     )
                   })
                 ) : (
-                  <div className="text-xs text-slate-400 italic px-3">
-                    Nenhuma atividade programada
+                  <div className="text-xs text-slate-400 italic px-3 py-1.5">
+                    Nenhuma atividade agendada
                   </div>
                 )}
               </div>
