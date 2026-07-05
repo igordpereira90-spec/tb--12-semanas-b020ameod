@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/use-auth'
+import { useRealtime } from '@/hooks/use-realtime'
 import { useToast } from '@/hooks/use-toast'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,9 +33,19 @@ export default function Profile() {
       setName(user.name || '')
       setEmail(user.email || '')
       setAge(user.age != null ? String(user.age) : '')
-      setAvatarPreview(getAvatarUrl(user))
+      if (!avatarFile) {
+        setAvatarPreview(getAvatarUrl(user))
+      }
     }
-  }, [user])
+  }, [user, avatarFile])
+
+  useRealtime('users', () => {
+    if (pb.authStore.isValid) {
+      pb.collection('users')
+        .authRefresh()
+        .catch(() => {})
+    }
+  })
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -10,16 +11,42 @@ import {
   UserCircle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { useRealtime } from '@/hooks/use-realtime'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { NotificationsBell } from '@/components/NotificationsBell'
 import { UserAvatar } from '@/components/UserAvatar'
+import pb from '@/lib/pocketbase/client'
 import logoUrl from '@/assets/medpsi-receituario-igor-cabecalho-2952f.jpg'
 
 export default function Layout() {
   const { user, role, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const [, setForceUpdate] = useState(0)
+
+  useEffect(() => {
+    const refreshUser = async () => {
+      if (pb.authStore.isValid) {
+        try {
+          await pb.collection('users').authRefresh()
+        } catch {
+          pb.authStore.clear()
+        }
+      }
+      setForceUpdate((n) => n + 1)
+    }
+    refreshUser()
+  }, [])
+
+  useRealtime('users', () => {
+    if (pb.authStore.isValid) {
+      pb.collection('users')
+        .authRefresh()
+        .catch(() => {})
+      setForceUpdate((n) => n + 1)
+    }
+  })
 
   const patientNav = [
     { path: '/patient', label: '🏠 Início', icon: Home },
