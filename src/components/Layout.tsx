@@ -9,6 +9,7 @@ import {
   Home,
   ShieldCheck,
   UserCircle,
+  Gift,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
@@ -52,6 +53,7 @@ export default function Layout() {
     { path: '/patient', label: '🏠 Início', icon: Home },
     { path: '/patient/library', label: '📚 Biblioteca', icon: BookOpen },
     { path: '/patient/questionnaires', label: '📈 Meu Progresso', icon: Activity },
+    { path: '/bonus', label: '🎁 Bônus', icon: Gift },
     { path: '/profile', label: '👤 Perfil', icon: UserCircle },
   ]
   const proNav = [
@@ -59,6 +61,7 @@ export default function Layout() {
     { path: '/pro/questionnaire-settings', label: 'Questionário', icon: ClipboardList },
     { path: '/pro/materials', label: 'Material Educativo', icon: BookOpen },
     { path: '/pro/audit', label: 'Auditoria', icon: ShieldCheck },
+    { path: '/bonus', label: '🎁 Bônus', icon: Gift },
     { path: '/profile', label: 'Perfil', icon: UserCircle },
   ]
   const navItems = role === 'professional' ? proNav : patientNav

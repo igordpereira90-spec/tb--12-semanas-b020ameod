@@ -16,6 +16,7 @@ import PatientHome from './pages/patient/Home'
 import PatientQuestionnaires from './pages/patient/Questionnaires'
 import QuestionnaireFormPage from './pages/patient/QuestionnaireFormPage'
 import PatientLibrary from './pages/patient/Library'
+import Bonus from './pages/Bonus'
 
 import ProDashboard from './pages/professional/Dashboard'
 import PatientDetail from './pages/professional/PatientDetail'
@@ -52,6 +53,7 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/" element={<Index />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/bonus" element={<Bonus />} />
             </Route>
           </Route>
 
@@ -61,6 +63,7 @@ const App = () => (
               <Route path="/patient/questionnaires" element={<PatientQuestionnaires />} />
               <Route path="/patient/questionnaires/:week" element={<QuestionnaireFormPage />} />
               <Route path="/patient/library" element={<PatientLibrary />} />
+              <Route path="/bonus" element={<Bonus />} />
             </Route>
           </Route>
 
