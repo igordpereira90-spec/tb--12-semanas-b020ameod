@@ -7,10 +7,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { ImageIcon, Loader2 } from 'lucide-react'
+import { ImageIcon, Loader2, Sparkles, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const STOCK_AVATARS = [
+const PEOPLE_AVATARS = [
   'https://img.usecurling.com/ppl/large?gender=male&seed=201',
   'https://img.usecurling.com/ppl/large?gender=female&seed=202',
   'https://img.usecurling.com/ppl/large?gender=male&seed=203',
@@ -21,6 +21,19 @@ const STOCK_AVATARS = [
   'https://img.usecurling.com/ppl/large?gender=female&seed=208',
 ]
 
+const ANIME_AVATARS = [
+  'https://img.usecurling.com/p/300/300?q=anime%20portrait',
+  'https://img.usecurling.com/p/300/300?q=anime%20character%20avatar',
+  'https://img.usecurling.com/p/300/300?q=anime%20illustration',
+  'https://img.usecurling.com/p/300/300?q=anime%20girl%20portrait',
+  'https://img.usecurling.com/p/300/300?q=anime%20boy%20portrait',
+  'https://img.usecurling.com/p/300/300?q=anime%20hero%20character',
+  'https://img.usecurling.com/p/300/300?q=anime%20warrior%20portrait',
+  'https://img.usecurling.com/p/300/300?q=anime%20fantasy%20character',
+]
+
+type AvatarTab = 'people' | 'anime'
+
 interface StockAvatarPickerProps {
   onSelect: (file: File, previewUrl: string) => void
 }
@@ -28,6 +41,7 @@ interface StockAvatarPickerProps {
 export function StockAvatarPicker({ onSelect }: StockAvatarPickerProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<AvatarTab>('people')
 
   const handleSelect = async (url: string) => {
     setLoading(url)
@@ -44,6 +58,8 @@ export function StockAvatarPicker({ onSelect }: StockAvatarPickerProps) {
     }
   }
 
+  const avatars = activeTab === 'anime' ? ANIME_AVATARS : PEOPLE_AVATARS
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -59,8 +75,32 @@ export function StockAvatarPicker({ onSelect }: StockAvatarPickerProps) {
         <DialogHeader>
           <DialogTitle>Escolha uma imagem</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-4 gap-3 pt-2">
-          {STOCK_AVATARS.map((url) => (
+        <div className="flex gap-2 pt-2">
+          <button
+            onClick={() => setActiveTab('people')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              activeTab === 'people'
+                ? 'bg-primary text-white shadow-md'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+            )}
+          >
+            <Users className="w-4 h-4" /> People
+          </button>
+          <button
+            onClick={() => setActiveTab('anime')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              activeTab === 'anime'
+                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+            )}
+          >
+            <Sparkles className="w-4 h-4" /> Anime Style
+          </button>
+        </div>
+        <div className="grid grid-cols-4 gap-3 pt-3">
+          {avatars.map((url) => (
             <button
               key={url}
               onClick={() => handleSelect(url)}
@@ -68,6 +108,7 @@ export function StockAvatarPicker({ onSelect }: StockAvatarPickerProps) {
               className={cn(
                 'rounded-full overflow-hidden ring-2 ring-slate-200 hover:ring-amber-400 transition-all aspect-square',
                 loading === url && 'opacity-50',
+                activeTab === 'anime' && 'hover:ring-purple-400',
               )}
             >
               {loading === url ? (
@@ -75,11 +116,16 @@ export function StockAvatarPicker({ onSelect }: StockAvatarPickerProps) {
                   <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
                 </div>
               ) : (
-                <img src={url} alt="Opção de avatar" className="w-full h-full object-cover" />
+                <img src={url} alt="Avatar option" className="w-full h-full object-cover" />
               )}
             </button>
           ))}
         </div>
+        {activeTab === 'anime' && (
+          <p className="text-xs text-slate-400 text-center pt-1">
+            Choose Anime Avatar — browse and select your favorite anime style
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   )
