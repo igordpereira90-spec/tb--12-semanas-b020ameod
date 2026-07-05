@@ -117,13 +117,7 @@ export default function Layout() {
           <Link
             to={homePath}
             className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-80"
-          >
-            <img
-              src={logoUrl}
-              alt="Dr. Igor Dourado Pereira"
-              className="h-9 md:h-11 w-auto max-w-[180px] md:max-w-[220px] object-contain mix-blend-multiply"
-            />
-          </Link>
+          ></Link>
           <div className="hidden md:flex items-center text-sm font-medium text-slate-500">
             {role === 'patient' ? 'Área do Paciente' : 'Área do Profissional'}
           </div>
