@@ -11,7 +11,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
 import { validatePassword } from '@/lib/password-validation'
 import { logAction } from '@/services/audit_logs'
-import { Brain, ArrowRight, CheckCircle2, XCircle, ShieldAlert, Lock } from 'lucide-react'
+import { ArrowRight, CheckCircle2, XCircle, ShieldAlert, Lock } from 'lucide-react'
+import logoImg from '@/assets/medpsi-receituario-igor-cabecalho-2952f.jpg'
 
 export default function Login() {
   const { signIn, signUp } = useAuth()
@@ -82,14 +83,12 @@ export default function Login() {
         <div className="absolute bottom-20 left-20 w-48 h-48 rounded-full bg-yellow-200/20 blur-2xl" />
 
         <div className="relative z-10 text-white max-w-md">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-14 h-14 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/20">
-              <Brain className="w-8 h-8" />
-            </div>
-            <div>
-              <p className="text-sm text-amber-100/80 tracking-widest uppercase">Programa de</p>
-              <p className="text-lg font-semibold">Acompanhamento</p>
-            </div>
+          <div className="flex justify-center mb-8">
+            <img
+              src={logoImg}
+              alt="Logotipo do Programa de Acompanhamento"
+              className="w-full max-w-xs h-auto rounded-2xl object-contain shadow-2xl"
+            />
           </div>
 
           <h1 className="font-serif text-4xl font-bold leading-tight mb-4">
@@ -122,11 +121,12 @@ export default function Login() {
 
       <div className="flex-1 flex items-center justify-center p-6">
         <Card className="w-full max-w-md p-8 shadow-[0_20px_60px_-15px_rgba(180,148,31,0.15)] border-amber-100/50 bg-white">
-          <div className="md:hidden flex flex-col items-center gap-2 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#C5A028] to-[#D4AF37] rounded-xl flex items-center justify-center">
-              <Brain className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="font-serif text-xl font-bold text-amber-900">TB 12 Semanas</h1>
+          <div className="md:hidden flex flex-col items-center mb-6">
+            <img
+              src={logoImg}
+              alt="Logotipo do Programa de Acompanhamento"
+              className="w-full max-w-[180px] h-auto rounded-xl object-contain"
+            />
           </div>
 
           <div className="hidden md:block mb-6">
