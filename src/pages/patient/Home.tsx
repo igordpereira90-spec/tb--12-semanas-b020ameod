@@ -61,6 +61,29 @@ export default function PatientHome() {
     loadData()
   })
 
+  const questionnaireConfigWeeks = useMemo(() => configs.map((c) => c.week_number), [configs])
+
+  const consultationWeeks = useMemo(() => {
+    const fromConfigs = configs
+      .filter((c) => {
+        const cfg = c.configs as Record<string, unknown>
+        return cfg?.has_consultation === true
+      })
+      .map((c) => c.week_number)
+    return fromConfigs
+  }, [configs])
+
+  const handleActivityClick = useCallback(
+    (week: number, type: 'material' | 'questionnaire' | 'consultation') => {
+      if (type === 'questionnaire') {
+        navigate(`/patient/questionnaires/${week}`)
+      } else if (type === 'material') {
+        navigate('/patient/library')
+      }
+    },
+    [navigate],
+  )
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -92,29 +115,6 @@ export default function PatientHome() {
       navigate('/patient/library')
     }
   }
-
-  const questionnaireConfigWeeks = useMemo(() => configs.map((c) => c.week_number), [configs])
-
-  const consultationWeeks = useMemo(() => {
-    const fromConfigs = configs
-      .filter((c) => {
-        const cfg = c.configs as Record<string, unknown>
-        return cfg?.has_consultation === true
-      })
-      .map((c) => c.week_number)
-    return fromConfigs
-  }, [configs])
-
-  const handleActivityClick = useCallback(
-    (week: number, type: 'material' | 'questionnaire' | 'consultation') => {
-      if (type === 'questionnaire') {
-        navigate(`/patient/questionnaires/${week}`)
-      } else if (type === 'material') {
-        navigate('/patient/library')
-      }
-    },
-    [navigate],
-  )
 
   return (
     <div className="space-y-6 animate-fade-in">
