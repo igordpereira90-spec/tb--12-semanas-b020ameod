@@ -81,7 +81,6 @@ export default function Layout() {
                     : 'text-slate-600 hover:bg-primary/5 hover:text-primary',
                 )}
               >
-                <Icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
               </Link>
             )
