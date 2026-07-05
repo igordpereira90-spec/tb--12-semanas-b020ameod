@@ -29,29 +29,21 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         },
         {
           "name": "role",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "patient",
-            "professional"
-          ]
+          "selectValues": ["patient", "professional"]
         },
         {
           "name": "points",
@@ -124,13 +116,7 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Humor",
-            "Energia/disposição",
-            "Sono",
-            "Ansiedade",
-            "Outro"
-          ]
+          "selectValues": ["Humor", "Energia/disposição", "Sono", "Ansiedade", "Outro"]
         },
         {
           "name": "mood_score",
@@ -155,144 +141,84 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "insomnia_freq",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "daytime_sleepiness",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "talkativeness",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "racing_thoughts",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "increased_goal_activity",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "risky_behavior",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "euphoria",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "depressed_mood",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "loss_of_interest",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "concentration_change",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "physical_activity",
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "Nunca",
-            "Só um pouco",
-            "Bastante",
-            "Demais"
-          ]
+          "selectValues": ["Nunca", "Só um pouco", "Bastante", "Demais"]
         },
         {
           "name": "appetite_weight_change",
@@ -333,19 +259,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         },
         {
           "name": "improvement_areas_other",
@@ -398,19 +319,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": [
@@ -446,19 +362,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": [
@@ -493,19 +404,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": [
@@ -553,19 +459,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": [
@@ -610,19 +511,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": [
@@ -671,30 +567,21 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": [
-            "info",
-            "success",
-            "alert"
-          ]
+          "selectValues": ["info", "success", "alert"]
         },
         {
           "name": "created",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": [
@@ -732,19 +619,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": [
@@ -787,19 +669,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": []
