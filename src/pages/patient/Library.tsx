@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useUnlocks } from '@/hooks/use-unlocks'
+import { useMaterialCompletions } from '@/hooks/use-material-completions'
 import { useToast } from '@/hooks/use-toast'
 import { getEducationalMaterials } from '@/services/educational_materials'
-import { parseUserBadges, recordMaterialRead, refreshAuthUser } from '@/services/gamification'
+import { markMaterialAsRead } from '@/services/material_completions'
+import { recordMaterialRead, refreshAuthUser } from '@/services/gamification'
+import { getQuestionnaires } from '@/services/questionnaires'
 import { MAX_XP } from '@/lib/scoring'
 import type { EducationalMaterial } from '@/services/educational_materials'
-import { getQuestionnaires } from '@/services/questionnaires'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Star, CheckCircle2 } from 'lucide-react'
 
 export default function PatientLibrary() {
   const { user } = useAuth()
   const { toast } = useToast()
+  const { completedMaterialIds } = useMaterialCompletions(user?.id)
   const [materials, setMaterials] = useState<EducationalMaterial[]>([])
   const [programWeek, setProgramWeek] = useState(0)
   const [reading, setReading] = useState<EducationalMaterial | null>(null)
-  const [readMaterials, setReadMaterials] = useState<string[]>([])
+  const [marking, setMarking] = useState(false)
   const { unlockedWeeks } = useUnlocks(user?.id)
 
   useEffect(() => {
@@ -38,26 +42,30 @@ export default function PatientLibrary() {
     load()
   }, [user?.id])
 
-  useEffect(() => {
-    const badges = parseUserBadges(user?.badges)
-    setReadMaterials(badges.readMaterials)
-  }, [user?.badges])
-
   const visibleMaterials = materials.filter(
     (m) => m.week_number <= programWeek || unlockedWeeks.includes(m.week_number),
   )
 
-  const handleOpenMaterial = async (material: EducationalMaterial) => {
-    setReading(material)
-    if (readMaterials.indexOf(material.id) === -1) {
-      setReadMaterials((prev) => [...prev, material.id])
-      try {
-        await recordMaterialRead(material.id)
-        await refreshAuthUser()
-        toast({ title: '+5 pontos!', description: 'Material lido — parabéns!', duration: 3000 })
-      } catch {
-        /* silently ignore */
-      }
+  const handleMarkAsRead = async (material: EducationalMaterial) => {
+    if (!user?.id || completedMaterialIds.has(material.id)) return
+    setMarking(true)
+    try {
+      await markMaterialAsRead(user.id, material.id)
+      await recordMaterialRead(material.id)
+      await refreshAuthUser()
+      toast({
+        title: 'Material concluído!',
+        description: '+5 pontos — parabéns!',
+        duration: 3000,
+      })
+    } catch {
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível marcar como lido.',
+        duration: 3000,
+      })
+    } finally {
+      setMarking(false)
     }
   }
 
@@ -78,17 +86,17 @@ export default function PatientLibrary() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {visibleMaterials.map((item) => {
-          const isRead = readMaterials.includes(item.id)
+          const isRead = completedMaterialIds.has(item.id)
           return (
             <Card
               key={item.id}
               className="overflow-hidden border-slate-100 hover:shadow-lg transition-all group flex flex-col p-6 cursor-pointer relative"
-              onClick={() => handleOpenMaterial(item)}
+              onClick={() => setReading(item)}
             >
               {isRead && (
-                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 text-amber-500" />
-                </div>
+                <Badge className="absolute top-4 right-4 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200">
+                  <CheckCircle2 className="w-3 h-3 mr-1" /> Concluído
+                </Badge>
               )}
               <Badge className="w-fit mb-4 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">
                 Semana {item.week_number}
@@ -98,8 +106,8 @@ export default function PatientLibrary() {
               </h3>
               <p className="text-sm text-slate-500 line-clamp-3">{item.objective}</p>
               {isRead && (
-                <p className="text-xs text-amber-600 font-medium mt-3 flex items-center gap-1">
-                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> Material lido
+                <p className="text-xs text-emerald-600 font-medium mt-3 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Material concluído
                 </p>
               )}
             </Card>
@@ -118,9 +126,16 @@ export default function PatientLibrary() {
           {reading && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-xl md:text-2xl text-slate-800">
-                  {reading.title}
-                </DialogTitle>
+                <div className="flex items-center justify-between gap-4">
+                  <DialogTitle className="text-xl md:text-2xl text-slate-800">
+                    {reading.title}
+                  </DialogTitle>
+                  {completedMaterialIds.has(reading.id) && (
+                    <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 shrink-0">
+                      <CheckCircle2 className="w-3 h-3 mr-1" /> Concluído
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-slate-500 font-medium pt-3 pb-5 border-b">
                   Objetivo: {reading.objective}
                 </p>
@@ -129,6 +144,16 @@ export default function PatientLibrary() {
                 className="prose prose-slate max-w-none text-sm md:text-base prose-headings:text-amber-900 prose-headings:font-bold prose-h3:text-lg prose-p:leading-relaxed prose-li:leading-relaxed prose-a:text-amber-600 pb-8"
                 dangerouslySetInnerHTML={{ __html: reading.content }}
               />
+              {!completedMaterialIds.has(reading.id) && (
+                <Button
+                  onClick={() => handleMarkAsRead(reading)}
+                  disabled={marking}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  {marking ? 'Marcando...' : 'Marcar como lido'}
+                </Button>
+              )}
             </>
           )}
         </DialogContent>

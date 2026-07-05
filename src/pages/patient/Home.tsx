@@ -5,6 +5,7 @@ import { useRealtime } from '@/hooks/use-realtime'
 import { getQuestionnaires } from '@/services/questionnaires'
 import { getEducationalMaterials } from '@/services/educational_materials'
 import { parseUserBadges } from '@/services/gamification'
+import { useMaterialCompletions } from '@/hooks/use-material-completions'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Unlock, Loader2 } from 'lucide-react'
@@ -24,6 +25,7 @@ export default function PatientHome() {
   const [materials, setMaterials] = useState<EducationalMaterial[]>([])
   const [loading, setLoading] = useState(true)
   const { unlockedWeeks } = useUnlocks(user?.id)
+  const { completedMaterialIds } = useMaterialCompletions(user?.id)
 
   const loadData = useCallback(async () => {
     if (!user?.id) return
@@ -68,7 +70,7 @@ export default function PatientHome() {
   const nextUnreadMaterial = materials.find(
     (m) =>
       (m.week_number <= programWeek || unlockedWeeks.includes(m.week_number)) &&
-      !userBadges.readMaterials.includes(m.id),
+      !completedMaterialIds.has(m.id),
   )
   const hasMaterialToRead = !hasQuestionnairePending && !!nextUnreadMaterial
 
@@ -99,7 +101,14 @@ export default function PatientHome() {
           </span>
         </div>
         <Card className="p-2 md:p-6 shadow-sm border-slate-100">
-          <Timeline completedWeeks={completedWeeks} unlockedWeeks={unlockedWeeks} />
+          <Timeline
+            completedWeeks={completedWeeks}
+            unlockedWeeks={unlockedWeeks}
+            materialWeeks={materials.map((m) => m.week_number)}
+            completedMaterialWeeks={materials
+              .filter((m) => completedMaterialIds.has(m.id))
+              .map((m) => m.week_number)}
+          />
           <div className="mt-8 px-4 pb-4 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-500">
               <span>Progresso XP</span>

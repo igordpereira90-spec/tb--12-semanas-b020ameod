@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-05T00:01:05.552Z",
+  "generatedAt": "2026-07-05T00:27:55.250Z",
   "collections": [
     {
       "name": "users",
@@ -587,6 +587,52 @@
       "indexes": [
         "CREATE INDEX idx_notifications_recipient ON notifications (recipient)",
         "CREATE INDEX idx_notifications_created ON notifications (created DESC)"
+      ]
+    },
+    {
+      "name": "material_completions",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && (patient = @request.auth.id || @request.auth.role = 'professional')",
+        "view": "@request.auth.id != '' && (patient = @request.auth.id || @request.auth.role = 'professional')",
+        "create": "@request.auth.id != '' && patient = @request.auth.id",
+        "update": "@request.auth.id != '' && patient = @request.auth.id",
+        "delete": "@request.auth.id != '' && patient = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "patient",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "material",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "educational_materials"
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_material_completions_patient ON material_completions (patient)",
+        "CREATE INDEX idx_material_completions_material ON material_completions (material)",
+        "CREATE UNIQUE INDEX idx_mat_completions_patient_material ON material_completions (patient, material)"
       ]
     }
   ]

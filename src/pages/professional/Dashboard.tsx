@@ -154,6 +154,7 @@ export default function ProDashboard() {
             <TableHeader>
               <TableRow className="bg-primary/5 hover:bg-primary/5 border-primary/10">
                 <TableHead className="text-primary font-semibold">Paciente</TableHead>
+                <TableHead className="text-primary font-semibold">E-mail</TableHead>
                 <TableHead className="text-primary font-semibold">Semana Atual</TableHead>
                 <TableHead className="text-primary font-semibold">Questionários</TableHead>
                 <TableHead className="text-primary font-semibold">Status</TableHead>
@@ -171,6 +172,7 @@ export default function ProDashboard() {
                     onClick={() => navigate(`/pro/patient/${patient.id}`)}
                   >
                     <TableCell className="font-medium text-slate-800">{patient.name}</TableCell>
+                    <TableCell className="text-slate-500 text-sm">{patient.email}</TableCell>
                     <TableCell>Semana {getCurrentWeek(pQs)}</TableCell>
                     <TableCell className="text-slate-500">
                       {pQs.length} de {QUESTIONNAIRE_WEEKS.length}
@@ -186,7 +188,7 @@ export default function ProDashboard() {
               })}
               {filteredPatients.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-slate-500">
+                  <TableCell colSpan={6} className="text-center py-8 text-slate-500">
                     Nenhum paciente encontrado.
                   </TableCell>
                 </TableRow>
