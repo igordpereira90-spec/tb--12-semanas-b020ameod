@@ -36,11 +36,11 @@ const TAB_CONFIG: Record<AvatarTab, TabConfig> = {
     description: 'Retratos profissionais para seu perfil',
   },
   anime: {
-    label: 'Anime Style',
+    label: 'Arte',
     icon: Sparkles,
     activeClass: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md',
     ringHover: 'hover:ring-purple-400',
-    description: 'Avatares estilo anime para um toque criativo',
+    description: 'Imagens artísticas e criativas para seu perfil',
   },
   nature: {
     label: 'Natureza',
@@ -127,7 +127,7 @@ export function StockAvatarPicker({ onSelect }: StockAvatarPickerProps) {
           size="sm"
           className="border-amber-200 text-amber-700 hover:bg-amber-50"
         >
-          <ImageIcon className="w-4 h-4 mr-2" /> Usar imagem padrão
+          <ImageIcon className="w-4 h-4 mr-2" /> Escolher imagem
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">

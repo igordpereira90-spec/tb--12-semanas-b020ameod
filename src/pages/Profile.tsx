@@ -14,6 +14,7 @@ import { getErrorMessage, extractFieldErrors, type FieldErrors } from '@/lib/poc
 import pb from '@/lib/pocketbase/client'
 import { Loader2, Save, Camera, User, Mail, Calendar } from 'lucide-react'
 import { parseUserBadges } from '@/services/gamification'
+import { StockAvatarPicker } from '@/components/StockAvatarPicker'
 
 export default function Profile() {
   const { user } = useAuth()
@@ -70,6 +71,11 @@ export default function Profile() {
     const reader = new FileReader()
     reader.onload = () => setAvatarPreview(reader.result as string)
     reader.readAsDataURL(file)
+  }
+
+  const handleStockAvatarSelect = (file: File, previewUrl: string) => {
+    setAvatarFile(file)
+    setAvatarPreview(previewUrl)
   }
 
   const validate = (): boolean => {
@@ -157,6 +163,7 @@ export default function Profile() {
                 >
                   <Camera className="w-4 h-4 mr-2" /> Enviar foto
                 </Button>
+                <StockAvatarPicker onSelect={handleStockAvatarSelect} />
               </div>
               {avatarFile && (
                 <p className="text-xs text-slate-500">

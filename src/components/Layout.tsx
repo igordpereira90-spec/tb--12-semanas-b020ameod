@@ -151,7 +151,7 @@ export default function Layout() {
               to="/profile"
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors"
             >
-              <UserCircle className="w-5 h-5 text-white" />
+              <UserCircle className="w-5 h-5 text-slate-600" />
               <span>Perfil</span>
             </Link>
             <UserAvatar user={user} size="sm" className="md:hidden" showRing={false} />
@@ -178,13 +178,7 @@ export default function Layout() {
                 isActive ? 'text-primary' : 'text-slate-400 hover:text-slate-600',
               )}
             >
-              <Icon
-                className={cn(
-                  'w-6 h-6',
-                  isActive && 'fill-primary/20',
-                  item.path === '/profile' && isActive && 'text-white',
-                )}
-              />
+              <Icon className={cn('w-6 h-6', isActive && 'fill-primary/20')} />
               <span className="text-[10px] font-medium truncate max-w-[60px]">{item.label}</span>
             </Link>
           )

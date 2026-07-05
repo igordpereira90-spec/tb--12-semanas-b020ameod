@@ -9,6 +9,7 @@ routerAdd(
       'https://api.dicebear.com/',
       'https://images.unsplash.com/',
       'https://images.pexels.com/',
+      'https://img.usecurling.com/',
     ]
 
     var valid = false

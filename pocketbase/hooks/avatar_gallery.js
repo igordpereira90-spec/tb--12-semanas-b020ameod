@@ -2,56 +2,53 @@ routerAdd(
   'GET',
   '/backend/v1/avatar-gallery',
   (e) => {
-    const db = 'https://api.dicebear.com/9.x'
-
-    function dice(style, seed) {
-      return db + '/' + style + '/png?seed=' + seed + '&size=300'
+    function ppl(gender, seed) {
+      return 'https://img.usecurling.com/ppl/medium?gender=' + gender + '&seed=' + seed
     }
-
-    function unsplash(photoId) {
-      return 'https://images.unsplash.com/photo-' + photoId + '?w=300&h=300&fit=crop'
+    function img(query) {
+      return 'https://img.usecurling.com/p/300/300?q=' + encodeURIComponent(query) + '&dpr=2'
     }
 
     const gallery = {
       anime: [
-        { id: 'an1', url: dice('lorelei', 'tb-anime-1') },
-        { id: 'an2', url: dice('lorelei', 'tb-anime-2') },
-        { id: 'an3', url: dice('lorelei', 'tb-anime-3') },
-        { id: 'an4', url: dice('lorelei', 'tb-anime-4') },
-        { id: 'an5', url: dice('adventurer', 'tb-anime-5') },
-        { id: 'an6', url: dice('adventurer', 'tb-anime-6') },
-        { id: 'an7', url: dice('adventurer', 'tb-anime-7') },
-        { id: 'an8', url: dice('adventurer', 'tb-anime-8') },
+        { id: 'an1', url: img('abstract painting') },
+        { id: 'an2', url: img('colorful artwork') },
+        { id: 'an3', url: img('watercolor art') },
+        { id: 'an4', url: img('digital illustration') },
+        { id: 'an5', url: img('neon art') },
+        { id: 'an6', url: img('creative design') },
+        { id: 'an7', url: img('modern art') },
+        { id: 'an8', url: img('pop art') },
       ],
       profissional: [
-        { id: 'pr1', url: dice('personas', 'tb-prof-1') },
-        { id: 'pr2', url: dice('personas', 'tb-prof-2') },
-        { id: 'pr3', url: dice('personas', 'tb-prof-3') },
-        { id: 'pr4', url: dice('personas', 'tb-prof-4') },
-        { id: 'pr5', url: dice('micah', 'tb-prof-5') },
-        { id: 'pr6', url: dice('micah', 'tb-prof-6') },
-        { id: 'pr7', url: dice('micah', 'tb-prof-7') },
-        { id: 'pr8', url: dice('micah', 'tb-prof-8') },
+        { id: 'pr1', url: ppl('male', 'tb-prof-1') },
+        { id: 'pr2', url: ppl('female', 'tb-prof-2') },
+        { id: 'pr3', url: ppl('male', 'tb-prof-3') },
+        { id: 'pr4', url: ppl('female', 'tb-prof-4') },
+        { id: 'pr5', url: ppl('male', 'tb-prof-5') },
+        { id: 'pr6', url: ppl('female', 'tb-prof-6') },
+        { id: 'pr7', url: ppl('male', 'tb-prof-7') },
+        { id: 'pr8', url: ppl('female', 'tb-prof-8') },
       ],
       natureza: [
-        { id: 'na1', url: unsplash('1506905925346-21bda4d32df4') },
-        { id: 'na2', url: unsplash('1441974231531-c6227db76b6e') },
-        { id: 'na3', url: unsplash('1505144808419-1957a94ca61e') },
-        { id: 'na4', url: unsplash('1470071459604-3b5ec3a7fe05') },
-        { id: 'na5', url: unsplash('1426604966848-d7adac402bff') },
-        { id: 'na6', url: unsplash('1501785888041-af3ef285b470') },
-        { id: 'na7', url: unsplash('1418065460487-3e41a6c84dc5') },
-        { id: 'na8', url: unsplash('1518495973542-4542c06a5843') },
+        { id: 'na1', url: img('mountain landscape') },
+        { id: 'na2', url: img('forest trees') },
+        { id: 'na3', url: img('ocean waves') },
+        { id: 'na4', url: img('sunset sky') },
+        { id: 'na5', url: img('green valley') },
+        { id: 'na6', url: img('desert dunes') },
+        { id: 'na7', url: img('autumn leaves') },
+        { id: 'na8', url: img('snow peaks') },
       ],
       minimalista: [
-        { id: 'mi1', url: dice('geometric', 'tb-min-1') },
-        { id: 'mi2', url: dice('geometric', 'tb-min-2') },
-        { id: 'mi3', url: dice('geometric', 'tb-min-3') },
-        { id: 'mi4', url: dice('geometric', 'tb-min-4') },
-        { id: 'mi5', url: dice('shapes', 'tb-min-5') },
-        { id: 'mi6', url: dice('shapes', 'tb-min-6') },
-        { id: 'mi7', url: dice('shapes', 'tb-min-7') },
-        { id: 'mi8', url: dice('shapes', 'tb-min-8') },
+        { id: 'mi1', url: img('geometric pattern') },
+        { id: 'mi2', url: img('minimal design') },
+        { id: 'mi3', url: img('abstract shapes') },
+        { id: 'mi4', url: img('clean lines') },
+        { id: 'mi5', url: img('pastel gradient') },
+        { id: 'mi6', url: img('simple pattern') },
+        { id: 'mi7', url: img('monochrome abstract') },
+        { id: 'mi8', url: img('minimal geometry') },
       ],
     }
 
