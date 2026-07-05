@@ -1,28 +1,59 @@
+import { useState, useEffect, useCallback } from 'react'
 import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { PlayCircle, Moon, Brain } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { PlayCircle, Moon, Brain, Pencil, Gift } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import { useRealtime } from '@/hooks/use-realtime'
+import { BonusEditDialog } from '@/components/professional/BonusEditDialog'
+import { getBonuses, type Bonus } from '@/services/bonuses'
 
-const sleepHygieneRecommendations = [
-  'Manter um ritmo sono-vigília regular (horários consistentes para dormir e acordar).',
-  'Crie no seu quarto um ambiente que induz ao sono (conforto, luz, ruído e temperatura adequados).',
-  'Diminuição de estímulos por parte de dispositivos eletrônicos (limitar telas emissoras de luz 1h antes de dormir).',
-  'Desenvolver atividades relaxantes antes de dormir (relaxamento, meditação, música calma).',
-  'Evitar o uso de substâncias estimulantes (evitar cafeína/nicotina após as 14h).',
-  'Evitar a ingestão de bebidas alcoólicas (o álcool altera as fases do sono).',
-  'Manter a prática de atividade física regular (evitar atividade intensa 3h antes de dormir).',
-  'Evitar refeições muito pesadas antes de dormir (refeições leves e ingestão controlada de líquidos).',
-  'Evitar resolver problemas antes de ir para a cama (deixar as preocupações do dia fora da hora de dormir).',
-  'Evitar cochilar durante o dia (garantir cansaço para o período noturno).',
-]
+function convertToEmbedUrl(url: string): string {
+  if (!url) return ''
+  if (url.includes('/embed/')) return url
+  const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)
+  if (youtubeMatch) return `https://www.youtube.com/embed/${youtubeMatch[1]}`
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/)
+  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`
+  return url
+}
 
-const stimulusControlRecommendations = [
-  'Ir para a cama apenas quando estiver sonolento.',
-  'Utilizar a cama apenas para dormir, para atividade sexual ou para recuperar-se de alguma enfermidade.',
-  'Caso não esteja sonolento ou não adormeça em até 20 minutos, sair da cama e retornar apenas quando se sentir sonolento.',
-  'Acordar e levantar-se todos os dias no mesmo horário; não cochilar durante o dia.',
-]
+const ICONS = [PlayCircle, Moon, Brain] as const
+const ICON_COLORS = ['text-rose-500', 'text-indigo-500', 'text-purple-500']
+const ICON_BGS = ['bg-rose-50', 'bg-indigo-50', 'bg-purple-50']
 
 export default function Bonus() {
+  const { user } = useAuth()
+  const isProfessional = user?.role === 'professional'
+  const [bonuses, setBonuses] = useState<Bonus[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editTarget, setEditTarget] = useState<Bonus | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+
+  const loadBonuses = useCallback(async () => {
+    try {
+      const data = await getBonuses()
+      setBonuses(data)
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadBonuses()
+  }, [loadBonuses])
+
+  useRealtime('bonuses', () => {
+    loadBonuses()
+  })
+
+  const handleEdit = (bonus: Bonus) => {
+    setEditTarget(bonus)
+    setDialogOpen(true)
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
@@ -32,97 +63,96 @@ export default function Bonus() {
         </p>
       </div>
 
-      <Card className="overflow-hidden border-slate-100 shadow-sm">
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50">
-              <PlayCircle className="w-6 h-6 text-rose-500" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">Respiração Diafragmática</h2>
-              <p className="text-sm text-slate-500">
-                Técnica de relaxamento para reduzir ansiedade e melhorar o bem-estar.
-              </p>
-            </div>
-          </div>
-          <div
-            className="relative w-full overflow-hidden rounded-xl bg-black shadow-md"
-            style={{ aspectRatio: '16 / 9' }}
-          >
-            <iframe
-              className="absolute inset-0 w-full h-full"
-              src="https://www.youtube.com/embed/Px54tGh4Ub8"
-              title="Respiração Diafragmática"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          </div>
-        </div>
-      </Card>
-
-      <Card className="border-slate-100 shadow-sm">
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50">
-              <Moon className="w-6 h-6 text-indigo-500" />
-            </div>
-            <h2 className="text-lg font-bold text-slate-800 text-center w-full">
-              TÉCNICAS PARA UMA BOA QUALIDADE DO SONO
-            </h2>
-          </div>
-
-          <div className="space-y-8">
-            <section>
-              <div className="flex items-center gap-2 mb-3">
-                <Badge className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100">Seção 1</Badge>
-                <h3 className="text-base font-bold text-slate-700">HIGIENE DO SONO</h3>
+      {loading ? (
+        <div className="space-y-6">
+          {[0, 1].map((i) => (
+            <Card key={i} className="p-6 border-slate-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <Skeleton className="h-5 w-48" />
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                A Higiene do Sono refere-se a um conjunto de medidas comportamentais e ambientais
-                que visam promover a qualidade do sono. Estas recomendações ajudam a estabelecer
-                hábitos saudáveis que facilitam o adormecer e a manutenção do sono ao longo da
-                noite.
-              </p>
-              <ol className="space-y-3">
-                {sleepHygieneRecommendations.map((rec, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold mt-0.5">
-                      {idx + 1}
-                    </span>
-                    <span className="text-sm text-slate-600 leading-relaxed">{rec}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
+              <Skeleton className="w-full h-48 rounded-xl" />
+            </Card>
+          ))}
+        </div>
+      ) : (
+        bonuses.map((bonus, idx) => {
+          const Icon = ICONS[idx % ICONS.length]
+          const iconColor = ICON_COLORS[idx % ICON_COLORS.length]
+          const iconBg = ICON_BGS[idx % ICON_BGS.length]
+          const embedUrl = convertToEmbedUrl(bonus.video_url)
 
-            <section>
-              <div className="flex items-center gap-2 mb-3">
-                <Badge className="bg-purple-50 text-purple-700 hover:bg-purple-100">Seção 2</Badge>
-                <div className="flex items-center gap-2">
-                  <Brain className="w-4 h-4 text-purple-500" />
-                  <h3 className="text-base font-bold text-slate-700">CONTROLE DE ESTÍMULOS</h3>
+          return (
+            <Card key={bonus.id} className="overflow-hidden border-slate-100 shadow-sm">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex items-center justify-center w-10 h-10 rounded-full ${iconBg}`}
+                    >
+                      <Icon className={`w-6 h-6 ${iconColor}`} />
+                    </div>
+                    <h2 className="text-lg font-bold text-slate-800">{bonus.title}</h2>
+                  </div>
+                  {isProfessional && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(bonus)}
+                      className="border-slate-200 text-slate-600 hover:bg-slate-50"
+                    >
+                      <Pencil className="w-4 h-4 mr-2" /> Editar
+                    </Button>
+                  )}
                 </div>
+
+                {embedUrl ? (
+                  <div
+                    className="relative w-full overflow-hidden rounded-xl bg-black shadow-md mb-4"
+                    style={{ aspectRatio: '16 / 9' }}
+                  >
+                    <iframe
+                      className="absolute inset-0 w-full h-full"
+                      src={embedUrl}
+                      title={bonus.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : null}
+
+                <div
+                  className="prose prose-sm max-w-none text-slate-600
+                    [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-slate-700 [&_h3]:mt-4 [&_h3]:mb-2
+                    [&_p]:my-2 [&_p]:leading-relaxed
+                    [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-2
+                    [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-2
+                    [&_li]:my-1 [&_li]:leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: bonus.content }}
+                />
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                O Controle de Estímulos trata da associação entre o quarto/cama e a dificuldade para
-                dormir (insônia). Quando a pessoa passa muito tempo acordada na cama, o cérebro
-                passa a associar o ambiente com frustração e vigília em vez de relaxamento e sono.
-                Estas técnicas visam reverter essa associação.
-              </p>
-              <ol className="space-y-3">
-                {stimulusControlRecommendations.map((rec, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-purple-50 text-purple-600 text-xs font-bold mt-0.5">
-                      {idx + 1}
-                    </span>
-                    <span className="text-sm text-slate-600 leading-relaxed">{rec}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
+            </Card>
+          )
+        })
+      )}
+
+      {!loading && bonuses.length === 0 && (
+        <Card className="p-12 border-slate-100 shadow-sm">
+          <div className="flex flex-col items-center justify-center text-center">
+            <Gift className="w-12 h-12 text-slate-300 mb-3" />
+            <p className="text-slate-400">Nenhum conteúdo bônus disponível no momento.</p>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
+
+      {isProfessional && editTarget && (
+        <BonusEditDialog
+          bonus={editTarget}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onSaved={loadBonuses}
+        />
+      )}
     </div>
   )
 }

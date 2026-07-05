@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useRealtime } from '@/hooks/use-realtime'
 import { useToast } from '@/hooks/use-toast'
@@ -12,15 +12,13 @@ import { UserAvatar } from '@/components/UserAvatar'
 
 import { getErrorMessage, extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
 import pb from '@/lib/pocketbase/client'
-import { Loader2, Save, Camera, User, Mail, Calendar } from 'lucide-react'
+import { Loader2, Save, User, Mail, Calendar } from 'lucide-react'
 import { parseUserBadges } from '@/services/gamification'
 import { StockAvatarPicker } from '@/components/StockAvatarPicker'
 
 export default function Profile() {
   const { user } = useAuth()
   const { toast } = useToast()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [age, setAge] = useState('')
@@ -47,31 +45,6 @@ export default function Profile() {
         .catch(() => {})
     }
   })
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: 'Erro',
-        description: 'Por favor, selecione um arquivo de imagem.',
-        variant: 'destructive',
-      })
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: 'Erro',
-        description: 'A imagem deve ter no máximo 5MB.',
-        variant: 'destructive',
-      })
-      return
-    }
-    setAvatarFile(file)
-    const reader = new FileReader()
-    reader.onload = () => setAvatarPreview(reader.result as string)
-    reader.readAsDataURL(file)
-  }
 
   const handleStockAvatarSelect = (file: File, previewUrl: string) => {
     setAvatarFile(file)
@@ -138,47 +111,22 @@ export default function Profile() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-6">
-            <div
-              className="relative group cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <UserAvatar
-                user={user}
-                size="xl"
-                src={avatarPreview || undefined}
-                showRing={false}
-                className="ring-4 ring-amber-100 ring-offset-2"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="w-6 h-6 text-white" />
-              </div>
-            </div>
+            <UserAvatar
+              user={user}
+              size="xl"
+              src={avatarPreview || undefined}
+              showRing={false}
+              className="ring-4 ring-amber-100 ring-offset-2"
+            />
             <div className="space-y-2">
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-amber-200 text-amber-700 hover:bg-amber-50"
-                >
-                  <Camera className="w-4 h-4 mr-2" /> Enviar foto
-                </Button>
-                <StockAvatarPicker onSelect={handleStockAvatarSelect} />
-              </div>
+              <StockAvatarPicker onSelect={handleStockAvatarSelect} />
               {avatarFile && (
                 <p className="text-xs text-slate-500">
                   {avatarFile.name} ({(avatarFile.size / 1024).toFixed(0)} KB)
                 </p>
               )}
-              <p className="text-xs text-slate-400">JPG, PNG. Máximo 5MB.</p>
+              <p className="text-xs text-slate-400">Escolha uma imagem da galeria.</p>
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png"
-              onChange={handleAvatarChange}
-              className="hidden"
-            />
           </div>
         </CardContent>
       </Card>
