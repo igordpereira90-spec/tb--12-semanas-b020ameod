@@ -73,13 +73,13 @@ export default function PatientLibrary() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Material Educativo</h1>
+          <h1 className="text-2xl font-bold text-slate-800 mb-2">📚 Material Educativo</h1>
           <p className="text-slate-600">A psicoeducação é parte fundamental do seu tratamento.</p>
         </div>
         <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-4 py-2 rounded-full">
           <Star className="w-4 h-4" />
           <span className="text-sm font-bold">
-            {user?.points ?? 0} / {MAX_XP} XP
+            ⭐ {user?.points ?? 0} / {MAX_XP} XP
           </span>
         </div>
       </div>
@@ -102,7 +102,7 @@ export default function PatientLibrary() {
                 Semana {item.week_number}
               </Badge>
               <h3 className="font-semibold text-lg text-slate-800 mb-2 line-clamp-2">
-                {item.title}
+                📄 {item.title}
               </h3>
               <p className="text-sm text-slate-500 line-clamp-3">{item.objective}</p>
               {isRead && (

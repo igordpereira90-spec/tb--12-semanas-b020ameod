@@ -118,6 +118,16 @@ export default function PatientHome() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Olá, {user?.name?.split(' ')[0] || 'paciente'}! 👋
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Bem-vindo de volta à sua jornada de 12 semanas
+          </p>
+        </div>
+      </div>
       <CurrentTaskCard
         weekNumber={currentWeek}
         hasQuestionnairePending={hasQuestionnairePending}
@@ -131,7 +141,7 @@ export default function PatientHome() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-800">Sua Jornada</h2>
           <span className="text-sm font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">
-            {points} / {MAX_XP} XP
+            ⭐ {points} / {MAX_XP} XP
           </span>
         </div>
         <Card className="p-2 md:p-6 shadow-sm border-slate-100">
@@ -150,7 +160,7 @@ export default function PatientHome() {
             <div className="flex items-center justify-between text-xs text-slate-500">
               <span>Progresso XP</span>
               <span>
-                {points} / {MAX_XP} XP
+                ⭐ {points} / {MAX_XP} XP
               </span>
             </div>
             <Progress value={xpProgress} className="h-3 bg-slate-100" />
@@ -171,7 +181,7 @@ export default function PatientHome() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-slate-800">Suas Conquistas</h2>
+        <h2 className="text-lg font-semibold text-slate-800">🏆 Suas Conquistas</h2>
         <BadgesGallery earnedBadges={userBadges.earnedBadges} />
       </section>
     </div>

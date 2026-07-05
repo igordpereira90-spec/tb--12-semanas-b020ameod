@@ -10,6 +10,7 @@ import { getAvatarUrl } from '@/lib/avatar'
 import { getErrorMessage, extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
 import pb from '@/lib/pocketbase/client'
 import { Loader2, Save, Camera, User, Mail, Calendar } from 'lucide-react'
+import { parseUserBadges } from '@/services/gamification'
 
 export default function Profile() {
   const { user } = useAuth()
@@ -247,6 +248,35 @@ export default function Profile() {
                 </>
               )}
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-amber-100/50 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-slate-800">🏆 Gamificação</CardTitle>
+          <CardDescription className="text-slate-500">
+            Seus pontos e conquistas no programa
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">⭐</span>
+              <div>
+                <p className="text-2xl font-bold text-slate-800">{user?.points ?? 0}</p>
+                <p className="text-xs text-slate-500">pontos XP</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🏅</span>
+              <div>
+                <p className="text-2xl font-bold text-slate-800">
+                  {parseUserBadges(user?.badges).earnedBadges.length}
+                </p>
+                <p className="text-xs text-slate-500">conquistas</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -102,7 +102,7 @@ export default function PatientQuestionnaires() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 mb-1">Meu Progresso</h1>
+        <h1 className="text-2xl font-bold text-slate-800 mb-1">📈 Meu Progresso</h1>
         <p className="text-slate-500">
           Acompanhe sua jornada de 12 semanas no programa de Transtorno Bipolar.
         </p>
@@ -138,7 +138,7 @@ export default function PatientQuestionnaires() {
             <p className="text-sm text-slate-500 font-medium">Conquistas</p>
           </div>
           <p className="text-2xl font-bold text-slate-800 ml-2">
-            {userBadges.earnedBadges?.length ?? 0}
+            🏅 {userBadges.earnedBadges?.length ?? 0}
           </p>
         </Card>
         <Card className="p-4 bg-white border border-indigo-200 shadow-sm relative overflow-hidden">
@@ -147,7 +147,7 @@ export default function PatientQuestionnaires() {
             <span className="text-sm text-slate-500 font-medium">XP Total</span>
           </div>
           <p className="text-2xl font-bold text-slate-800 ml-2">
-            {points}
+            ⭐ {points}
             <span className="text-sm font-normal text-slate-400"> / {MAX_XP}</span>
           </p>
         </Card>
@@ -165,7 +165,7 @@ export default function PatientQuestionnaires() {
           <div className="flex items-center justify-between text-xs text-slate-500">
             <span>Progresso XP</span>
             <span>
-              {points} / {MAX_XP} XP
+              ⭐ {points} / {MAX_XP} XP
             </span>
           </div>
           <Progress value={xpProgress} className="h-2.5 bg-slate-100" />

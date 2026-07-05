@@ -23,10 +23,10 @@ export default function Layout() {
   const navigate = useNavigate()
 
   const patientNav = [
-    { path: '/patient', label: 'Início', icon: Home },
-    { path: '/patient/library', label: 'Material', icon: BookOpen },
-    { path: '/patient/questionnaires', label: 'Progresso', icon: Activity },
-    { path: '/profile', label: 'Perfil', icon: UserCircle },
+    { path: '/patient', label: '🏠 Início', icon: Home },
+    { path: '/patient/library', label: '📚 Biblioteca', icon: BookOpen },
+    { path: '/patient/questionnaires', label: '📈 Meu Progresso', icon: Activity },
+    { path: '/profile', label: '👤 Perfil', icon: UserCircle },
   ]
   const proNav = [
     { path: '/pro', label: 'Dashboard', icon: LayoutDashboard },
@@ -122,6 +122,11 @@ export default function Layout() {
             {role === 'patient' ? 'Área do Paciente' : 'Área do Profissional'}
           </div>
           <div className="flex items-center space-x-4">
+            {role === 'patient' && (
+              <div className="hidden md:flex items-center gap-1 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-sm font-bold">
+                ⭐ {user?.points ?? 0} XP
+              </div>
+            )}
             <NotificationsBell />
             <Link
               to="/profile"
@@ -157,7 +162,7 @@ export default function Layout() {
               )}
             >
               <Icon className={cn('w-6 h-6', isActive && 'fill-primary/20')} />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <span className="text-[10px] font-medium truncate max-w-[60px]">{item.label}</span>
             </Link>
           )
         })}

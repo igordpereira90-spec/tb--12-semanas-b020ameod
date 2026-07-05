@@ -20,10 +20,10 @@ export function CurrentTaskCard({
   onAction,
 }: CurrentTaskCardProps) {
   const taskLabel = hasQuestionnairePending
-    ? `Complete o Questionário da Semana ${weekNumber}`
+    ? `📝 Complete o Questionário da Semana ${weekNumber}`
     : hasMaterialToRead
-      ? 'Leia o material educativo disponível'
-      : 'Tudo em dia! Aguarde a próxima semana.'
+      ? '📖 Leia o material educativo disponível'
+      : '✅ Tudo em dia! Aguarde a próxima semana.'
 
   const taskHint = hasQuestionnairePending
     ? 'Responda com sinceridade — suas respostas ajudam no tratamento.'
@@ -65,7 +65,7 @@ export function CurrentTaskCard({
         <div className="flex items-center gap-2 pt-2 border-t border-amber-100">
           <Sparkles className="w-4 h-4 text-amber-600" />
           <span className="text-sm font-bold text-amber-700">
-            {points} / {maxXp} XP
+            ⭐ {points} / {maxXp} XP
           </span>
         </div>
       </div>

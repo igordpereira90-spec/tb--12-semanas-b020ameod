@@ -42,7 +42,10 @@ export function BadgesGallery({ earnedBadges }: BadgesGalleryProps) {
             >
               {earned ? <Icon className="w-6 h-6" /> : <Lock className="w-5 h-5" />}
             </div>
-            <h3 className="font-semibold text-xs text-slate-800">{badge.name}</h3>
+            <h3 className="font-semibold text-xs text-slate-800">
+              {earned ? '🏅 ' : ''}
+              {badge.name}
+            </h3>
             <p className="text-[10px] text-slate-500 mt-0.5">{badge.desc}</p>
           </Card>
         )
