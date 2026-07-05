@@ -1,9 +1,18 @@
 export function getAvatarUrl(user: { id: string; avatar?: string } | null | undefined): string {
-  if (!user) {
-    return 'https://img.usecurling.com/ppl/thumbnail?seed=default'
-  }
+  if (!user) return ''
   if (user.avatar) {
     return `${import.meta.env.VITE_POCKETBASE_URL}/api/files/users/${user.id}/${user.avatar}`
   }
-  return `https://img.usecurling.com/ppl/thumbnail?seed=${encodeURIComponent(user.id)}`
+  return ''
+}
+
+export function getUserInitials(name?: string | null): string {
+  if (!name) return ''
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 }

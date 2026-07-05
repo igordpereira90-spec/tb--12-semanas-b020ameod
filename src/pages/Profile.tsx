@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getAvatarUrl } from '@/lib/avatar'
+import { UserAvatar } from '@/components/UserAvatar'
+import { StockAvatarPicker } from '@/components/StockAvatarPicker'
 import { getErrorMessage, extractFieldErrors, type FieldErrors } from '@/lib/pocketbase/errors'
 import pb from '@/lib/pocketbase/client'
 import { Loader2, Save, Camera, User, Mail, Calendar } from 'lucide-react'
@@ -103,13 +104,6 @@ export default function Profile() {
     }
   }
 
-  const initials = (name || 'US')
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-
   return (
     <div className="space-y-6">
       <div>
@@ -130,25 +124,34 @@ export default function Profile() {
               className="relative group cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Avatar className="w-24 h-24 ring-4 ring-amber-100 ring-offset-2">
-                <AvatarImage src={avatarPreview} />
-                <AvatarFallback className="text-2xl bg-amber-50 text-amber-700">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                user={user}
+                size="xl"
+                src={avatarPreview || undefined}
+                showRing={false}
+                className="ring-4 ring-amber-100 ring-offset-2"
+              />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                 <Camera className="w-6 h-6 text-white" />
               </div>
             </div>
             <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                className="border-amber-200 text-amber-700 hover:bg-amber-50"
-              >
-                <Camera className="w-4 h-4 mr-2" /> Trocar foto
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-amber-200 text-amber-700 hover:bg-amber-50"
+                >
+                  <Camera className="w-4 h-4 mr-2" /> Enviar foto
+                </Button>
+                <StockAvatarPicker
+                  onSelect={(file, previewUrl) => {
+                    setAvatarFile(file)
+                    setAvatarPreview(previewUrl)
+                  }}
+                />
+              </div>
               {avatarFile && (
                 <p className="text-xs text-slate-500">
                   {avatarFile.name} ({(avatarFile.size / 1024).toFixed(0)} KB)

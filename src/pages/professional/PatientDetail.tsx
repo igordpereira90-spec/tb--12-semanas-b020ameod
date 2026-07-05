@@ -32,6 +32,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { getNotes, createNote, updateNote } from '@/services/professional_notes'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
+import { UserAvatar } from '@/components/UserAvatar'
 
 export default function PatientDetail() {
   const { id } = useParams()
@@ -142,6 +143,7 @@ export default function PatientDetail() {
         <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="rounded-full">
           <ArrowLeft className="w-4 h-4" />
         </Button>
+        <UserAvatar user={patient} size="lg" />
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-slate-800">{patient.name}</h1>

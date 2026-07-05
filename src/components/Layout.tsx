@@ -11,10 +11,9 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { NotificationsBell } from '@/components/NotificationsBell'
-import { getAvatarUrl } from '@/lib/avatar'
+import { UserAvatar } from '@/components/UserAvatar'
 import logoUrl from '@/assets/medpsi-receituario-igor-cabecalho-2952f.jpg'
 
 export default function Layout() {
@@ -41,13 +40,6 @@ export default function Layout() {
     signOut()
     navigate('/login', { replace: true })
   }
-  const initials = (user?.name || 'US')
-    .split(' ')
-    .map((w: string) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-
   const homePath = role === 'professional' ? '/pro' : '/'
 
   return (
@@ -88,10 +80,7 @@ export default function Layout() {
         </nav>
         <div className="p-4 border-t border-slate-100 space-y-2">
           <div className="flex items-center gap-3 px-4 py-2">
-            <Avatar className="w-8 h-8 ring-2 ring-primary/20">
-              <AvatarImage src={getAvatarUrl(user)} />
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-            </Avatar>
+            <UserAvatar user={user} size="sm" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-slate-700 truncate">
                 {user?.name || 'Usuário'}
@@ -134,9 +123,7 @@ export default function Layout() {
               <UserCircle className="w-5 h-5" />
               <span>Perfil</span>
             </Link>
-            <Avatar className="w-8 h-8 ring-2 ring-primary/20 md:hidden">
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-            </Avatar>
+            <UserAvatar user={user} size="sm" className="md:hidden" showRing={false} />
           </div>{' '}
         </header>
 
