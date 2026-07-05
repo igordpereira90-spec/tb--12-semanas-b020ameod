@@ -180,12 +180,21 @@ export function Timeline({
                         />
                         <span className="flex-1">{act.label}</span>
                         {act.completed ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                        ) : isLocked ? (
-                          <Lock className="w-3 h-3 opacity-50 shrink-0" />
-                        ) : act.clickable ? (
-                          <span className="text-xs text-primary font-medium shrink-0">Acessar</span>
-                        ) : null}
+                          <span className="text-xs text-emerald-600 font-semibold shrink-0 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Concluído
+                          </span>
+                        ) : (
+                          <span
+                            className={cn(
+                              'text-xs font-medium shrink-0 flex items-center gap-1',
+                              isLocked ? 'text-slate-400' : 'text-slate-500',
+                            )}
+                          >
+                            {isLocked && <Lock className="w-3 h-3" />}
+                            Pendente
+                          </span>
+                        )}
                       </div>
                     )
                   })
