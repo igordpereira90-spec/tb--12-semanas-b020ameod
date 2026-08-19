@@ -31,7 +31,7 @@ export function QuestionnaireEditDialog({ questionnaire, open, onOpenChange, onS
           key={cachedQ.id}
           week={cachedQ.week_number}
           onSubmit={onSubmit}
-          initialData={cachedQ as Record<string, unknown>}
+          initialData={cachedQ as unknown as Record<string, unknown>}
           submitLabel="Salvar Alterações"
           isEditing
         />

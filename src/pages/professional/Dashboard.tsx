@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRealtime } from '@/hooks/use-realtime'
 import { getPatients } from '@/services/users'
@@ -15,12 +15,61 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Search, AlertCircle, Clock, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react'
+import {
+  Search,
+  AlertCircle,
+  Clock,
+  CheckCircle2,
+  ArrowRight,
+  Loader2,
+  RefreshCw,
+  WifiOff,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getPatientStatus, getCurrentWeek } from '@/lib/patient-utils'
 import { QUESTIONNAIRE_WEEKS } from '@/lib/questionnaire-config'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
+
+/** Tempo máximo aceitável para uma chamada de API antes de desistir. */
+const API_TIMEOUT_MS = 12000
+
+/**
+ * Envolta uma promise com um timeout. Garante que a promise sempre settle
+ * (resolve ou reject) mesmo quando o backend não responde, evitando loading
+ * eterno. O timer é limpo em qualquer caminho para não vazar.
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    let settled = false
+    const timer = setTimeout(() => {
+      if (settled) return
+      settled = true
+      reject(new Error(`${label}: tempo limite excedido.`))
+    }, ms)
+    promise.then(
+      (value) => {
+        if (settled) return
+        settled = true
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (err) => {
+        if (settled) return
+        settled = true
+        clearTimeout(timer)
+        reject(err)
+      },
+    )
+  })
+}
+
+/** Extrai uma mensagem de erro legível a partir de qualquer erro de rede/API. */
+function describeError(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message
+  if (typeof err === 'string' && err) return err
+  return 'Não foi possível conectar ao servidor.'
+}
 
 export default function ProDashboard() {
   const navigate = useNavigate()
@@ -29,25 +78,48 @@ export default function ProDashboard() {
   const [patients, setPatients] = useState<AppUser[]>([])
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const mountedRef = useRef(true)
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (opts: { silent?: boolean } = {}) => {
+    const { silent = false } = opts
+    // Recargas em tempo real (silent) não reexibem o spinner nem apagam a
+    // tela — apenas atualizam os dados em segundo plano.
+    if (!silent) setLoading(true)
+    if (!silent) setError(null)
     try {
-      const [pats, qs] = await Promise.all([getPatients(), getQuestionnaires()])
+      const [pats, qs] = await Promise.all([
+        withTimeout(getPatients(), API_TIMEOUT_MS, 'Pacientes'),
+        withTimeout(getQuestionnaires(), API_TIMEOUT_MS, 'Questionários'),
+      ])
+      if (!mountedRef.current) return
       setPatients(pats)
       setQuestionnaires(qs)
-    } catch {
-      setPatients([])
-      setQuestionnaires([])
+      setError(null)
+    } catch (err) {
+      if (!mountedRef.current) return
+      if (!silent) {
+        // Falha no carregamento inicial: limpa dados e mostra erro amigável.
+        setPatients([])
+        setQuestionnaires([])
+        setError(describeError(err))
+      }
+      // Em recarga silenciosa mantemos os dados atuais já em tela.
     } finally {
-      setLoading(false)
+      if (mountedRef.current && !silent) setLoading(false)
     }
   }, [])
 
   useEffect(() => {
+    mountedRef.current = true
     loadData()
+    return () => {
+      mountedRef.current = false
+    }
   }, [loadData])
+
   useRealtime('questionnaires', () => {
-    loadData()
+    loadData({ silent: true })
   })
 
   const getPatientQs = (pid: string) => questionnaires.filter((q) => q.patient === pid)
@@ -61,8 +133,47 @@ export default function ProDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-sm text-slate-500">Carregando pacientes e questionários...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 mb-2">Painel de Acompanhamento</h1>
+          <p className="text-slate-600">
+            Monitore a evolução dos seus pacientes no ciclo de 12 semanas.
+          </p>
+        </div>
+        <Card className="p-8 border-rose-200 bg-white shadow-sm">
+          <div className="flex flex-col items-center text-center gap-4 py-6 max-w-md mx-auto">
+            <div className="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
+              <WifiOff className="w-7 h-7 text-rose-500" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800">
+                Não foi possível carregar os dados
+              </h2>
+              <p className="text-sm text-slate-500 mt-1.5">
+                Houve um problema de comunicação com o servidor. Verifique sua conexão com a
+                internet e tente novamente. Se o problema persistir, o serviço pode estar
+                temporariamente indisponível.
+              </p>
+            </div>
+            {error && <p className="text-xs text-slate-400 break-words w-full">{error}</p>}
+            <Button
+              onClick={() => loadData()}
+              disabled={loading}
+              className="bg-gradient-to-r from-[#C5A028] to-[#D4AF37] hover:from-[#B8941F] hover:to-[#C5A028] text-white"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" /> Tentar novamente
+            </Button>
+          </div>
+        </Card>
       </div>
     )
   }
