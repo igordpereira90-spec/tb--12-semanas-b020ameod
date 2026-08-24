@@ -26,13 +26,14 @@ import {
   WifiOff,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import pb from '@/lib/pocketbase/client'
 import { getPatientStatus, getCurrentWeek } from '@/lib/patient-utils'
 import { QUESTIONNAIRE_WEEKS } from '@/lib/questionnaire-config'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
 
 /** Tempo máximo aceitável para uma chamada de API antes de desistir. */
-const API_TIMEOUT_MS = 12000
+const API_TIMEOUT_MS = 15000
 
 /**
  * Envolta uma promise com um timeout. Garante que a promise sempre settle
@@ -45,7 +46,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
     const timer = setTimeout(() => {
       if (settled) return
       settled = true
-      reject(new Error(`${label}: tempo limite excedido.`))
+      reject(new Error(`${label}: tempo limite excedido (${ms / 1000}s).`))
     }, ms)
     promise.then(
       (value) => {
@@ -65,7 +66,13 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 /** Extrai uma mensagem de erro legível a partir de qualquer erro de rede/API. */
-function describeError(err: unknown): string {
+function describeError(err: any): string {
+  if (err?.status) {
+    if (err.status === 401) return 'Sessão expirada ou não autenticada (401).'
+    if (err.status === 403) return 'Acesso não autorizado para visualizar pacientes (403).'
+    if (err.status === 0) return 'Erro de rede ou conexão recusada (status 0).'
+    return `Erro do servidor (${err.status}): ${err.message || 'Falha na requisição'}`
+  }
   if (err instanceof Error && err.message) return err.message
   if (typeof err === 'string' && err) return err
   return 'Não foi possível conectar ao servidor.'
@@ -88,15 +95,32 @@ export default function ProDashboard() {
     if (!silent) setLoading(true)
     if (!silent) setError(null)
     try {
+      console.log(
+        '[Dashboard] Loading data. Auth isValid:',
+        pb.authStore.isValid,
+        'Role:',
+        (pb.authStore.record as any)?.role,
+      )
       const [pats, qs] = await Promise.all([
         withTimeout(getPatients(), API_TIMEOUT_MS, 'Pacientes'),
         withTimeout(getQuestionnaires(), API_TIMEOUT_MS, 'Questionários'),
       ])
       if (!mountedRef.current) return
+      console.log('[Dashboard] Loaded successfully:', {
+        patientsCount: pats.length,
+        questionnairesCount: qs.length,
+      })
       setPatients(pats)
       setQuestionnaires(qs)
       setError(null)
-    } catch (err) {
+    } catch (err: any) {
+      console.error('[Dashboard] Erro ao carregar dados:', err, {
+        status: err?.status,
+        message: err?.message,
+        data: err?.data,
+        isAuthValid: pb.authStore.isValid,
+        authRecord: pb.authStore.record,
+      })
       if (!mountedRef.current) return
       if (!silent) {
         // Falha no carregamento inicial: limpa dados e mostra erro amigável.

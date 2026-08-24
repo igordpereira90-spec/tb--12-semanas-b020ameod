@@ -35,10 +35,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (pb.authStore.isValid) {
       pb.collection('users')
         .authRefresh()
-        .catch(() => pb.authStore.clear())
+        .catch((err: any) => {
+          console.warn('[use-auth] authRefresh failed:', err?.status, err?.message)
+          // Se for erro definitivo de autorização (401/403 token expirado ou revogado), limpa o store.
+          // Se for erro de rede, timeout (status 0) ou servidor temporário (status >= 500),
+          // NÃO limpa o token armazenado para não deslogar o usuário prematuramente.
+          if (err?.status === 401 || err?.status === 403) {
+            pb.authStore.clear()
+          }
+        })
         .finally(() => setLoading(false))
     } else {
-      if (pb.authStore.record) pb.authStore.clear()
+      if (pb.authStore.record && !pb.authStore.isValid) pb.authStore.clear()
       setLoading(false)
     }
     return () => {

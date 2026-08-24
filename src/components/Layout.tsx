@@ -31,8 +31,11 @@ export default function Layout() {
       if (pb.authStore.isValid) {
         try {
           await pb.collection('users').authRefresh()
-        } catch {
-          pb.authStore.clear()
+        } catch (err: any) {
+          console.warn('[Layout] authRefresh failed:', err?.status, err?.message)
+          if (err?.status === 401 || err?.status === 403) {
+            pb.authStore.clear()
+          }
         }
       }
       setForceUpdate((n) => n + 1)
