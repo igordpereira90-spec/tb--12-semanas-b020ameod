@@ -34,11 +34,29 @@ export interface Questionnaire {
 
 export async function getQuestionnaires(patientId?: string) {
   const filter = patientId ? `patient = "${patientId}"` : ''
-  return pb.collection('questionnaires').getFullList<Questionnaire>({
+  console.log(
+    '[questionnaires service] getQuestionnaires() called. filter:',
     filter,
-    sort: 'week_number',
-    expand: 'patient',
-  })
+    'authStore.isValid:',
+    pb.authStore.isValid,
+  )
+  try {
+    const list = await pb.collection('questionnaires').getFullList<Questionnaire>({
+      filter,
+      sort: 'week_number',
+      expand: 'patient',
+    })
+    console.log('[questionnaires service] getQuestionnaires() SUCCESS, count:', list.length)
+    return list
+  } catch (err: any) {
+    console.error('[questionnaires service] getQuestionnaires() FAILED:', err, {
+      status: err?.status,
+      message: err?.message,
+      data: err?.data,
+      isAbort: err?.isAbort,
+    })
+    throw err
+  }
 }
 
 export async function createQuestionnaire(data: Partial<Questionnaire>) {

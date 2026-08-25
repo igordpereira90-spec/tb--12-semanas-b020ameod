@@ -16,10 +16,30 @@ export interface AppUser {
 }
 
 export async function getPatients() {
-  return pb.collection('users').getFullList<AppUser>({
-    filter: 'role = "patient"',
-    sort: 'name',
-  })
+  console.log(
+    '[users service] getPatients() called. authStore.isValid:',
+    pb.authStore.isValid,
+    'token:',
+    pb.authStore.token ? `${pb.authStore.token.slice(0, 10)}...` : 'NONE',
+    'user:',
+    pb.authStore.record?.id,
+  )
+  try {
+    const list = await pb.collection('users').getFullList<AppUser>({
+      filter: 'role = "patient"',
+      sort: 'name',
+    })
+    console.log('[users service] getPatients() SUCCESS, count:', list.length)
+    return list
+  } catch (err: any) {
+    console.error('[users service] getPatients() FAILED:', err, {
+      status: err?.status,
+      message: err?.message,
+      data: err?.data,
+      isAbort: err?.isAbort,
+    })
+    throw err
+  }
 }
 
 export async function getUser(id: string) {
