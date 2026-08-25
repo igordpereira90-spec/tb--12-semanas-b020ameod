@@ -32,8 +32,8 @@ import { QUESTIONNAIRE_WEEKS } from '@/lib/questionnaire-config'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
 
-/** Tempo máximo aceitável para uma chamada de API antes de desistir. */
-const API_TIMEOUT_MS = 15000
+/** Tempo máximo aceitável para uma chamada de API antes de desistir (20s). */
+const API_TIMEOUT_MS = 20000
 
 /**
  * Envolta uma promise com um timeout. Garante que a promise sempre settle
