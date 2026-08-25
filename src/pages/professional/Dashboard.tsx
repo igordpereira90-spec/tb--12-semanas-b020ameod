@@ -98,6 +98,8 @@ export default function ProDashboard() {
       console.log(
         '[Dashboard] Loading data. Auth isValid:',
         pb.authStore.isValid,
+        'User:',
+        pb.authStore.record?.id,
         'Role:',
         (pb.authStore.record as any)?.role,
       )
