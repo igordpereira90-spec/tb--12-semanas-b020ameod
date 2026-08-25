@@ -32,8 +32,36 @@ import { QUESTIONNAIRE_WEEKS } from '@/lib/questionnaire-config'
 import type { AppUser } from '@/services/users'
 import type { Questionnaire } from '@/services/questionnaires'
 
-/** Tempo máximo aceitável para uma chamada de API antes de desistir (20s). */
-const API_TIMEOUT_MS = 20000
+/** Tempo máximo aceitável para uma chamada de API antes de desistir (45s). */
+const API_TIMEOUT_MS = 45000
+
+/** Número de tentativas automáticas antes de exibir o erro ao usuário. */
+const MAX_ATTEMPTS = 3
+
+/** Delay progressivo entre tentativas (ms). */
+const RETRY_DELAYS_MS = [2000, 5000]
+
+/** Executa uma função com retry automático e delay progressivo. */
+async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
+  let lastErr: unknown
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      return await fn()
+    } catch (err) {
+      lastErr = err
+      if (attempt < MAX_ATTEMPTS) {
+        console.warn(
+          `[Dashboard] ${label}: tentativa ${attempt}/${MAX_ATTEMPTS} falhou, tentando de novo...`,
+          err,
+        )
+        await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt - 1] || 5000))
+      }
+    }
+  }
+  throw lastErr instanceof Error
+    ? lastErr
+    : new Error(`${label}: falhou após ${MAX_ATTEMPTS} tentativas.`)
+}
 
 /**
  * Envolta uma promise com um timeout. Garante que a promise sempre settle
@@ -104,8 +132,11 @@ export default function ProDashboard() {
         (pb.authStore.record as any)?.role,
       )
       const [pats, qs] = await Promise.all([
-        withTimeout(getPatients(), API_TIMEOUT_MS, 'Pacientes'),
-        withTimeout(getQuestionnaires(), API_TIMEOUT_MS, 'Questionários'),
+        withRetry(() => withTimeout(getPatients(), API_TIMEOUT_MS, 'Pacientes'), 'Pacientes'),
+        withRetry(
+          () => withTimeout(getQuestionnaires(), API_TIMEOUT_MS, 'Questionários'),
+          'Questionários',
+        ),
       ])
       if (!mountedRef.current) return
       console.log('[Dashboard] Loaded successfully:', {
