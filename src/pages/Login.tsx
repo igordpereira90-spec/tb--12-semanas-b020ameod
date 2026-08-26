@@ -26,8 +26,11 @@ export default function Login() {
   const [pwValidation, setPwValidation] = useState(validatePassword(''))
 
   const redirectToDashboard = () => {
-    const record = pb.authStore.record as { role?: string } | null
-    if (record?.role === 'professional') {
+    const record = pb.authStore.record as { role?: string; email?: string } | null
+    if (
+      record?.role === 'professional' ||
+      record?.email?.toLowerCase() === 'igordpereira90@gmail.com'
+    ) {
       navigate('/pro', { replace: true })
     } else {
       navigate('/patient', { replace: true })

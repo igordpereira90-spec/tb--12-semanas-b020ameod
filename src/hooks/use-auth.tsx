@@ -81,9 +81,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Se for o Dr. Igor ou profissional, faz chamada para garantir que a conta existe e está configurada
+      if (email.trim().toLowerCase() === 'igordpereira90@gmail.com') {
+        try {
+          await pb.send('/backend/v1/ensure-user', { method: 'POST' })
+        } catch (e) {
+          console.warn('[use-auth] ensure-user check fallback:', e)
+        }
+      }
       await pb.collection('users').authWithPassword(email, password)
       return { error: null }
     } catch (error: any) {
+      // Se a autenticação falhou para o Dr. Igor, tenta re-chamar ensure-user e tentar mais uma vez
+      if (email.trim().toLowerCase() === 'igordpereira90@gmail.com') {
+        try {
+          await pb.send('/backend/v1/ensure-user', { method: 'POST' })
+          await pb.collection('users').authWithPassword(email, password)
+          return { error: null }
+        } catch {
+          /* intentionally ignored */
+        }
+      }
+
       if (error?.status === 400 || error?.status === 401) {
         return {
           error: {

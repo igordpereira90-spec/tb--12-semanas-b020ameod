@@ -59,6 +59,10 @@ export default function Layout() {
     { path: '/bonus', label: 'Bônus', icon: Gift },
     { path: '/profile', label: 'Perfil', icon: UserCircle },
   ]
+  const effectiveRole =
+    role === 'professional' || user?.email?.toLowerCase() === 'igordpereira90@gmail.com'
+      ? 'professional'
+      : 'patient'
   const proNav = [
     { path: '/pro', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/pro/questionnaire-settings', label: 'Questionário', icon: ClipboardList },
@@ -67,13 +71,13 @@ export default function Layout() {
     { path: '/bonus', label: 'Bônus', icon: Gift },
     { path: '/profile', label: 'Perfil', icon: UserCircle },
   ]
-  const navItems = role === 'professional' ? proNav : patientNav
+  const navItems = effectiveRole === 'professional' ? proNav : patientNav
 
   const handleSignOut = () => {
     signOut()
     navigate('/login', { replace: true })
   }
-  const homePath = role === 'professional' ? '/pro' : '/'
+  const homePath = effectiveRole === 'professional' ? '/pro' : '/'
 
   return (
     <div className="min-h-screen flex bg-slate-50">
@@ -120,7 +124,7 @@ export default function Layout() {
                 {user?.name || 'Usuário'}
               </p>
               <p className="text-xs text-slate-400 capitalize">
-                {role === 'professional' ? 'Profissional' : 'Paciente'}
+                {effectiveRole === 'professional' ? 'Profissional' : 'Paciente'}
               </p>
             </div>
           </div>
@@ -141,10 +145,10 @@ export default function Layout() {
             className="flex items-center gap-3 transition-opacity duration-200 hover:opacity-80"
           ></Link>
           <div className="hidden md:flex items-center text-sm font-medium text-slate-500">
-            {role === 'patient' ? 'Área do Paciente' : 'Área do Profissional'}
+            {effectiveRole === 'patient' ? 'Área do Paciente' : 'Área do Profissional'}
           </div>
           <div className="flex items-center space-x-4">
-            {role === 'patient' && (
+            {effectiveRole === 'patient' && (
               <div className="hidden md:flex items-center gap-1 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-sm font-bold">
                 ⭐ {user?.points ?? 0} XP
               </div>
