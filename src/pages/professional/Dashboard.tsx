@@ -94,16 +94,60 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 /** Extrai uma mensagem de erro legível a partir de qualquer erro de rede/API. */
-function describeError(err: any): string {
+function describeError(err: any): { title: string; detail: string; status?: number } {
   if (err?.status) {
-    if (err.status === 401) return 'Sessão expirada ou não autenticada (401).'
-    if (err.status === 403) return 'Acesso não autorizado para visualizar pacientes (403).'
-    if (err.status === 0) return 'Erro de rede ou conexão recusada (status 0).'
-    return `Erro do servidor (${err.status}): ${err.message || 'Falha na requisição'}`
+    if (err.status === 401) {
+      return {
+        title: 'Sessão expirada ou não autenticada',
+        detail:
+          'Sua sessão expirou ou o token de autenticação não foi reconhecido pelo servidor (HTTP 401). Faça login novamente.',
+        status: 401,
+      }
+    }
+    if (err.status === 403) {
+      return {
+        title: 'Permissão negada',
+        detail:
+          'Seu usuário não possui permissão para visualizar a lista de pacientes (HTTP 403 - RLS/Access Rules). Verifique se seu perfil tem o papel de profissional.',
+        status: 403,
+      }
+    }
+    if (err.status === 0) {
+      return {
+        title: 'Erro de comunicação de rede',
+        detail:
+          'Não foi possível estabelecer contato com o servidor (HTTP 0 - Network Error/CORS). Verifique sua conexão.',
+        status: 0,
+      }
+    }
+    return {
+      title: `Erro do servidor (HTTP ${err.status})`,
+      detail:
+        err.message ||
+        (typeof err.data === 'object'
+          ? JSON.stringify(err.data)
+          : 'Falha na requisição ao servidor.'),
+      status: err.status,
+    }
   }
-  if (err instanceof Error && err.message) return err.message
-  if (typeof err === 'string' && err) return err
-  return 'Não foi possível conectar ao servidor.'
+
+  if (err instanceof Error && err.message) {
+    if (err.message.includes('tempo limite excedido')) {
+      return {
+        title: 'Tempo de resposta excedido',
+        detail: `${err.message}. O servidor demorou mais do que o esperado para responder. Verifique sua conexão ou tente recarregar.`,
+      }
+    }
+    return {
+      title: 'Falha no carregamento',
+      detail: err.message,
+    }
+  }
+
+  return {
+    title: 'Falha de comunicação',
+    detail: 'Não foi possível conectar ao servidor ou receber a resposta.',
+  }
 }
 
 export default function ProDashboard() {
@@ -113,7 +157,11 @@ export default function ProDashboard() {
   const [patients, setPatients] = useState<AppUser[]>([])
   const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [errorInfo, setErrorInfo] = useState<{
+    title: string
+    detail: string
+    status?: number
+  } | null>(null)
   const mountedRef = useRef(true)
 
   const loadData = useCallback(async (opts: { silent?: boolean } = {}) => {
@@ -121,7 +169,7 @@ export default function ProDashboard() {
     // Recargas em tempo real (silent) não reexibem o spinner nem apagam a
     // tela — apenas atualizam os dados em segundo plano.
     if (!silent) setLoading(true)
-    if (!silent) setError(null)
+    if (!silent) setErrorInfo(null)
     try {
       console.log(
         '[Dashboard] Loading data. Auth isValid:',
@@ -131,6 +179,7 @@ export default function ProDashboard() {
         'Role:',
         (pb.authStore.record as any)?.role,
       )
+      // Carrega pacientes e questionários em paralelo
       const [pats, qs] = await Promise.all([
         withRetry(() => withTimeout(getPatients(), API_TIMEOUT_MS, 'Pacientes'), 'Pacientes'),
         withRetry(
@@ -145,7 +194,7 @@ export default function ProDashboard() {
       })
       setPatients(pats)
       setQuestionnaires(qs)
-      setError(null)
+      setErrorInfo(null)
     } catch (err: any) {
       console.error('[Dashboard] Erro ao carregar dados:', err, {
         status: err?.status,
@@ -156,10 +205,10 @@ export default function ProDashboard() {
       })
       if (!mountedRef.current) return
       if (!silent) {
-        // Falha no carregamento inicial: limpa dados e mostra erro amigável.
+        // Falha no carregamento inicial: limpa dados e mostra erro amigável detalhado.
         setPatients([])
         setQuestionnaires([])
-        setError(describeError(err))
+        setErrorInfo(describeError(err))
       }
       // Em recarga silenciosa mantemos os dados atuais já em tela.
     } finally {
@@ -197,7 +246,7 @@ export default function ProDashboard() {
     )
   }
 
-  if (error) {
+  if (errorInfo) {
     return (
       <div className="space-y-6 animate-fade-in">
         <div>
@@ -207,28 +256,37 @@ export default function ProDashboard() {
           </p>
         </div>
         <Card className="p-8 border-rose-200 bg-white shadow-sm">
-          <div className="flex flex-col items-center text-center gap-4 py-6 max-w-md mx-auto">
+          <div className="flex flex-col items-center text-center gap-4 py-6 max-w-lg mx-auto">
             <div className="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
-              <WifiOff className="w-7 h-7 text-rose-500" />
+              {errorInfo.status === 401 || errorInfo.status === 403 ? (
+                <AlertCircle className="w-7 h-7 text-rose-500" />
+              ) : (
+                <WifiOff className="w-7 h-7 text-rose-500" />
+              )}
             </div>
             <div>
               <h2 className="text-lg font-semibold text-slate-800">
-                Não foi possível carregar os dados
+                {errorInfo.title || 'Não foi possível carregar os dados'}
               </h2>
-              <p className="text-sm text-slate-500 mt-1.5">
-                Houve um problema de comunicação com o servidor. Verifique sua conexão com a
-                internet e tente novamente. Se o problema persistir, o serviço pode estar
-                temporariamente indisponível.
-              </p>
+              <p className="text-sm text-slate-600 mt-2 leading-relaxed">{errorInfo.detail}</p>
             </div>
-            {error && <p className="text-xs text-slate-400 break-words w-full">{error}</p>}
-            <Button
-              onClick={() => loadData()}
-              disabled={loading}
-              className="bg-gradient-to-r from-[#C5A028] to-[#D4AF37] hover:from-[#B8941F] hover:to-[#C5A028] text-white"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" /> Tentar novamente
-            </Button>
+            {errorInfo.status === 401 && (
+              <Button
+                onClick={() => navigate('/login')}
+                className="bg-primary hover:bg-primary/90 text-white"
+              >
+                Ir para o login
+              </Button>
+            )}
+            {errorInfo.status !== 401 && (
+              <Button
+                onClick={() => loadData()}
+                disabled={loading}
+                className="bg-gradient-to-r from-[#C5A028] to-[#D4AF37] hover:from-[#B8941F] hover:to-[#C5A028] text-white"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" /> Tentar novamente
+              </Button>
+            )}
           </div>
         </Card>
       </div>
