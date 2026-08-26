@@ -15,6 +15,29 @@ export interface AppUser {
   updated: string
 }
 
+export interface PatientListItem {
+  id: string
+  name: string
+  email?: string
+}
+
+/**
+ * Lista leve de pacientes para dropdowns e seletores (apenas id, name, email).
+ */
+export async function getPatientsList(): Promise<PatientListItem[]> {
+  try {
+    const list = await pb.collection('users').getFullList<PatientListItem>({
+      filter: 'role = "patient"',
+      sort: 'name',
+      fields: 'id,name,email',
+    })
+    return list
+  } catch (err: any) {
+    console.error('[users service] getPatientsList() FAILED:', err)
+    throw err
+  }
+}
+
 export async function getPatients() {
   console.log(
     '[users service] getPatients() called. authStore.isValid:',
