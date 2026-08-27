@@ -2,7 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRealtime } from '@/hooks/use-realtime'
 import { getPatientsList, getUser } from '@/services/users'
-import { getQuestionnaires, updateQuestionnaire } from '@/services/questionnaires'
+import {
+  getQuestionnaires,
+  updateQuestionnaire,
+  getTotalQuestionnairesCount,
+} from '@/services/questionnaires'
 import { getNotes, createNote, updateNote } from '@/services/professional_notes'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
@@ -52,6 +56,8 @@ import {
   AlertTriangle,
   Users,
   ExternalLink,
+  ClipboardCheck,
+  Activity,
 } from 'lucide-react'
 
 /** Tempo máximo aceitável para cada chamada de API sob demanda (15s). */
@@ -88,7 +94,11 @@ async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
 /**
  * Envolve uma promise com timeout de 15s para garantir que nunca trave indefinidamente.
  */
-function withTimeout<T>(promise: Promise<T>, ms = API_TIMEOUT_MS, label = 'Requisição'): Promise<T> {
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms = API_TIMEOUT_MS,
+  label = 'Requisição',
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     let settled = false
     const timer = setTimeout(() => {
@@ -142,7 +152,9 @@ function describeError(err: any): { title: string; detail: string; status?: numb
       title: `Erro do servidor (HTTP ${err.status})`,
       detail:
         err.message ||
-        (typeof err.data === 'object' ? JSON.stringify(err.data) : 'Falha na requisição ao servidor.'),
+        (typeof err.data === 'object'
+          ? JSON.stringify(err.data)
+          : 'Falha na requisição ao servidor.'),
       status: err.status,
     }
   }
@@ -175,9 +187,15 @@ export default function ProDashboard() {
   const [patientsList, setPatientsList] = useState<PatientListItem[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loadingList, setLoadingList] = useState(true)
-  const [listError, setListError] = useState<{ title: string; detail: string; status?: number } | null>(
-    null,
-  )
+  const [listError, setListError] = useState<{
+    title: string
+    detail: string
+    status?: number
+  } | null>(null)
+
+  // Resumo geral carregado em paralelo de forma independente
+  const [totalQuestionnairesCount, setTotalQuestionnairesCount] = useState<number | null>(null)
+  const [loadingSummary, setLoadingSummary] = useState(true)
 
   // Paciente atualmente selecionado
   const [selectedPatientId, setSelectedPatientId] = useState<string>('')
@@ -218,13 +236,31 @@ export default function ProDashboard() {
     }
   }, [])
 
+  // 1b. Carregar resumo geral em paralelo (total de questionários)
+  const loadGlobalSummary = useCallback(async () => {
+    setLoadingSummary(true)
+    try {
+      const count = await withRetry(
+        () => withTimeout(getTotalQuestionnairesCount(), API_TIMEOUT_MS, 'Total de Questionários'),
+        'Total de Questionários',
+      )
+      if (!mountedRef.current) return
+      setTotalQuestionnairesCount(count)
+    } catch (err) {
+      console.warn('[ProDashboard] Erro ao carregar contagem geral de questionários:', err)
+    } finally {
+      if (mountedRef.current) setLoadingSummary(false)
+    }
+  }, [])
+
   useEffect(() => {
     mountedRef.current = true
     loadPatientsList()
+    loadGlobalSummary()
     return () => {
       mountedRef.current = false
     }
-  }, [loadPatientsList])
+  }, [loadPatientsList, loadGlobalSummary])
 
   // 2. Carregar dados sob demanda quando um paciente for selecionado
   const loadPatientData = useCallback(
@@ -303,11 +339,16 @@ export default function ProDashboard() {
     }
   }, [selectedPatientId, loadPatientData])
 
-  // Realtime updates quando questionários ou notas mudarem para o paciente selecionado
+  // Realtime updates quando questionários ou notas mudarem
   useRealtime('questionnaires', () => {
+    loadGlobalSummary()
     if (selectedPatientId) {
       loadPatientData(selectedPatientId, { silent: true })
     }
+  })
+
+  useRealtime('users', () => {
+    loadPatientsList()
   })
 
   useRealtime('professional_notes', () => {
@@ -343,7 +384,11 @@ export default function ProDashboard() {
   const handleEditSubmit = async (data: Record<string, unknown>) => {
     if (!editingQ) return
     try {
-      await withTimeout(updateQuestionnaire(editingQ.id, data), API_TIMEOUT_MS, 'Atualizar Questionário')
+      await withTimeout(
+        updateQuestionnaire(editingQ.id, data),
+        API_TIMEOUT_MS,
+        'Atualizar Questionário',
+      )
       setEditingQ(null)
       setEditDialogOpen(false)
       toast({ title: 'Sucesso!', description: 'Questionário atualizado com sucesso.' })
@@ -405,6 +450,7 @@ export default function ProDashboard() {
             size="sm"
             onClick={() => {
               loadPatientsList()
+              loadGlobalSummary()
               if (selectedPatientId) loadPatientData(selectedPatientId)
             }}
             disabled={loadingList || loadingPatientData}
@@ -416,6 +462,63 @@ export default function ProDashboard() {
             Atualizar
           </Button>
         </div>
+      </div>
+
+      {/* CARDS DE RESUMO GERAL (Carregamento independente em paralelo) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="p-4 bg-white border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+              Total de Pacientes
+            </p>
+            <h3 className="text-2xl font-bold text-slate-800 mt-1">
+              {loadingList ? (
+                <Loader2 className="w-5 h-5 animate-spin text-primary mt-1" />
+              ) : (
+                patientsList.length
+              )}
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">Cadastrados no programa</p>
+          </div>
+          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+            <Users className="w-5 h-5" />
+          </div>
+        </Card>
+
+        <Card className="p-4 bg-white border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+              Questionários Preenchidos
+            </p>
+            <h3 className="text-2xl font-bold text-slate-800 mt-1">
+              {loadingSummary ? (
+                <Loader2 className="w-5 h-5 animate-spin text-primary mt-1" />
+              ) : (
+                (totalQuestionnairesCount ?? '—')
+              )}
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">Total acumulado no sistema</p>
+          </div>
+          <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <ClipboardCheck className="w-5 h-5" />
+          </div>
+        </Card>
+
+        <Card className="p-4 bg-white border-slate-200 shadow-sm flex items-center justify-between sm:col-span-2 lg:col-span-1">
+          <div>
+            <p className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+              Modo de Consulta
+            </p>
+            <h3 className="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Carregamento Sob Demanda
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">Sem risco de travamento (15s timeout)</p>
+          </div>
+          <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <Activity className="w-5 h-5" />
+          </div>
+        </Card>
       </div>
 
       {/* SELETOR DE PACIENTE NO TOPO */}
@@ -458,9 +561,7 @@ export default function ProDashboard() {
               >
                 <SelectTrigger className="h-10 bg-white border-primary/30">
                   <SelectValue
-                    placeholder={
-                      loadingList ? 'Carregando lista...' : 'Selecione um paciente...'
-                    }
+                    placeholder={loadingList ? 'Carregando lista...' : 'Selecione um paciente...'}
                   />
                 </SelectTrigger>
                 <SelectContent className="max-h-72">
@@ -639,7 +740,10 @@ export default function ProDashboard() {
 
             {/* Alerta clínico se houver */}
             {alerts.hasAlert && (
-              <Alert variant="destructive" className="bg-rose-50 border-rose-200 text-rose-900 mt-6">
+              <Alert
+                variant="destructive"
+                className="bg-rose-50 border-rose-200 text-rose-900 mt-6"
+              >
                 <AlertTriangle className="h-5 w-5 !text-rose-600" />
                 <AlertTitle className="text-rose-800 font-semibold">
                   Alerta Clínico — Semana {latestQ?.week_number}

@@ -59,6 +59,21 @@ export async function getQuestionnaires(patientId?: string) {
   }
 }
 
+/**
+ * Retorna o número total de questionários preenchidos no sistema.
+ */
+export async function getTotalQuestionnairesCount(): Promise<number> {
+  try {
+    const res = await pb.collection('questionnaires').getList(1, 1, {
+      fields: 'id',
+    })
+    return res.totalItems
+  } catch (err) {
+    console.error('[questionnaires service] getTotalQuestionnairesCount() FAILED:', err)
+    throw err
+  }
+}
+
 export async function createQuestionnaire(data: Partial<Questionnaire>) {
   return pb.collection('questionnaires').create<Questionnaire>(data)
 }
